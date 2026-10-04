@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorMiddleware');
+const authRoutes = require('./routes/authRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,9 @@ app.use(cookieParser()); // Parse cookies
 app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'ARGUS Backend is running' });
 });
+
+// Authentication Routes
+app.use('/api/auth', authRoutes);
 
 // Register global error handling middleware (must be after all routes)
 app.use(errorHandler);
