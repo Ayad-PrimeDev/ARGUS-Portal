@@ -48,6 +48,38 @@ const createItem = async (req, res, next) => {
     }
 };
 
-module.exports = {
-    createItem
+// @desc    Get all active items with optional filters
+// @route   GET /api/items
+// @access  Public
+const getItems = async (req, res, next) => {
+    try {
+        // 1. Base filter: only return ACTIVE items
+        const filter = { status: 'ACTIVE' };
+
+        // 2. Optional filter by type (LOST or FOUND)
+        if (req.query.type) {
+            filter.type = req.query.type;
+        }
+
+        // 3. Optional filter by category
+        if (req.query.category) {
+            filter.category = req.query.category;
+        }
+
+        // 4. Query database, populate submitter info, sort newest first
+        const items = await Item.find(filter)
+            .populate('submitterId', 'name email profileImage')
+            .sort({ createdAt: -1 });
+
+        // 5. Return items array
+        res.status(200).json(items);
+    } catch (error) {
+        next(error);
+    }
 };
+
+module.exports = {
+    createItem,
+    getItems
+};
+
