@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
-const { errorHandler } = require('./middleware/errorMiddleware');
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const claimRoutes = require('./routes/claimRoutes');
@@ -37,7 +37,10 @@ app.use('/api/items', itemRoutes);
 // Claim Routes
 app.use('/api/claims', claimRoutes);
 
-// Register global error handling middleware (must be after all routes)
+// 404 handler for undefined routes
+app.use(notFound);
+
+// Centralized error handling middleware (must be registered after all routes)
 app.use(errorHandler);
 
 // Start the server
