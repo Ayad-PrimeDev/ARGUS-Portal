@@ -37,6 +37,29 @@ const createClaim = async (req, res, next) => {
     }
 };
 
+// @desc    Get all claims related to items created by the logged-in user
+// @route   GET /api/claims
+// @access  Private (Requires authentication)
+const getClaims = async (req, res, next) => {
+    try {
+        // 1. Find all items submitted by the logged-in user
+        const userItems = await Item.find({ submitterId: req.user._id }).select('_id');
+        const itemIds = userItems.map((item) => item._id);
+
+        // 2. Find all claims made on those items
+        const claims = await Claim.find({ itemId: { $in: itemIds } })
+            .populate('requesterId', 'name email profileImage')
+            .populate('itemId', 'title description category type location imageUrl status')
+            .sort({ createdAt: -1 });
+
+        // 3. Return the claims array
+        res.status(200).json(claims);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
-    createClaim
+    createClaim,
+    getClaims
 };
