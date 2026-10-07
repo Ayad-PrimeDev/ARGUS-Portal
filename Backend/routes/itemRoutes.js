@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createItem, getItems, updateItem } = require('../controllers/itemController');
+const { createItem, getItems, updateItem, deleteItem } = require('../controllers/itemController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Define route to view all active items (with optional filters ?type=...&category=...)
@@ -17,5 +17,10 @@ router.post('/', protect, createItem);
 // PUT /api/items/:id
 // Protected route - only the submitter can update their own item
 router.put('/:id', protect, updateItem);
+
+// Define route to delete an item
+// DELETE /api/items/:id
+// Protected route - only the submitter can delete their own item
+router.delete('/:id', protect, deleteItem);
 
 module.exports = router;

@@ -117,9 +117,39 @@ const updateItem = async (req, res, next) => {
     }
 };
 
+// @desc    Delete an item
+// @route   DELETE /api/items/:id
+// @access  Private (Submitter only)
+const deleteItem = async (req, res, next) => {
+    try {
+        const item = await Item.findById(req.params.id);
+
+        // 1. Check if item exists
+        if (!item) {
+            res.status(404);
+            throw new Error('Item not found');
+        }
+
+        // 2. Check if logged-in user is the owner of the item
+        if (item.submitterId.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('Forbidden: You can only delete your own items');
+        }
+
+        // 3. Remove the item from database
+        await item.deleteOne();
+
+        // 4. Return success status message
+        res.status(200).json({ message: 'Item deleted successfully', id: req.params.id });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createItem,
     getItems,
-    updateItem
+    updateItem,
+    deleteItem
 };
 
