@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
@@ -17,7 +18,10 @@ connectDB();
 // Initialize Express app
 const app = express();
 
-// Middleware
+// Security Middleware
+app.use(helmet()); // Sets various HTTP security headers
+
+// Body Parsing and Cookie Middleware
 app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 app.use(cors()); // Enable CORS
