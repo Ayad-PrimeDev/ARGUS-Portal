@@ -59,7 +59,46 @@ const getClaims = async (req, res, next) => {
     }
 };
 
+// @desc    Approve or reject a claim
+// @route   PUT /api/claims/:id
+// @access  Private (Item submitter only)
+const updateClaimStatus = async (req, res, next) => {
+    try {
+        const { status } = req.body;
+
+        // 1. Validate status input
+        if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
+            res.status(400);
+            throw new Error('Please provide a valid status: APPROVED or REJECTED');
+        }
+
+        // 2. Find the claim
+        const claim = await Claim.findById(req.params.id);
+        if (!claim) {
+            res.status(404);
+            throw new Error('Claim not found');
+        }
+
+        // 3. Find the associated item and verify ownership
+        const item = await Item.findById(claim.itemId);
+        if (!item || item.submitterId.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('Forbidden: Only the item owner can approve or reject claims');
+        }
+
+        // 4. Update the claim status
+        claim.status = status;
+        const updatedClaim = await claim.save();
+
+        // 5. Return updated claim
+        res.status(200).json(updatedClaim);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createClaim,
-    getClaims
+    getClaims,
+    updateClaimStatus
 };
