@@ -78,8 +78,48 @@ const getItems = async (req, res, next) => {
     }
 };
 
+// @desc    Update an item
+// @route   PUT /api/items/:id
+// @access  Private (Submitter only)
+const updateItem = async (req, res, next) => {
+    try {
+        const item = await Item.findById(req.params.id);
+
+        // 1. Check if item exists
+        if (!item) {
+            res.status(404);
+            throw new Error('Item not found');
+        }
+
+        // 2. Check if logged-in user is the owner of the item
+        if (item.submitterId.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('Forbidden: You can only update your own items');
+        }
+
+        // 3. Extract allowed update fields
+        const { title, description, category, location, imageUrl, status } = req.body;
+
+        // 4. Update fields if provided
+        if (title !== undefined) item.title = title;
+        if (description !== undefined) item.description = description;
+        if (category !== undefined) item.category = category;
+        if (location !== undefined) item.location = location;
+        if (imageUrl !== undefined) item.imageUrl = imageUrl;
+        if (status !== undefined) item.status = status;
+
+        // 5. Save the updated item
+        const updatedItem = await item.save();
+
+        res.status(200).json(updatedItem);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createItem,
-    getItems
+    getItems,
+    updateItem
 };
 

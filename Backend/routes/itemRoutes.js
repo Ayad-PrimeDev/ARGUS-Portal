@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createItem, getItems } = require('../controllers/itemController');
+const { createItem, getItems, updateItem } = require('../controllers/itemController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Define route to view all active items (with optional filters ?type=...&category=...)
@@ -12,5 +12,10 @@ router.get('/', getItems);
 // POST /api/items
 // Protected route - requires user to be logged in
 router.post('/', protect, createItem);
+
+// Define route to update an item
+// PUT /api/items/:id
+// Protected route - only the submitter can update their own item
+router.put('/:id', protect, updateItem);
 
 module.exports = router;
