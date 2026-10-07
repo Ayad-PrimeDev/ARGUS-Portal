@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
+const itemRoutes = require('./routes/itemRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,9 @@ app.get('/api/health', (req, res) => {
 
 // Authentication Routes
 app.use('/api/auth', authRoutes);
+
+// Item Routes
+app.use('/api/items', itemRoutes);
 
 // Register global error handling middleware (must be after all routes)
 app.use(errorHandler);
