@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
+const claimRoutes = require('./routes/claimRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +33,9 @@ app.use('/api/auth', authRoutes);
 
 // Item Routes
 app.use('/api/items', itemRoutes);
+
+// Claim Routes
+app.use('/api/claims', claimRoutes);
 
 // Register global error handling middleware (must be after all routes)
 app.use(errorHandler);
