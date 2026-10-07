@@ -90,7 +90,26 @@ const updateClaimStatus = async (req, res, next) => {
         claim.status = status;
         const updatedClaim = await claim.save();
 
-        // 5. Return updated claim
+        // 5. If approved, update related item to CLAIMED and reject other pending claims
+        if (status === 'APPROVED') {
+            // Update item status to CLAIMED
+            item.status = 'CLAIMED';
+            await item.save();
+
+            // Reject all other pending claims for the same item
+            await Claim.updateMany(
+                {
+                    itemId: item._id,
+                    _id: { $ne: claim._id },
+                    status: 'PENDING'
+                },
+                {
+                    status: 'REJECTED'
+                }
+            );
+        }
+
+        // 6. Return updated claim
         res.status(200).json(updatedClaim);
     } catch (error) {
         next(error);
