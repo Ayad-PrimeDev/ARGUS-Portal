@@ -24,7 +24,10 @@ app.use(helmet()); // Sets various HTTP security headers
 // Body Parsing and Cookie Middleware
 app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
-app.use(cors()); // Enable CORS
+app.use(cors({
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true, // Allow cookies to be sent across domains
+}));
 app.use(cookieParser()); // Parse cookies
 
 // Basic Health Check Route
