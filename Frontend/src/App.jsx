@@ -4,6 +4,7 @@ import api from './services/api';
 import { AuthProvider } from './context/AuthContext';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function Home() {
   const [healthStatus, setHealthStatus] = useState('Checking backend connection...');
@@ -42,9 +43,23 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>
+                </ProtectedRoute>
+              }
+            />
             <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
-            <Route path="/profile" element={<div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </BrowserRouter>
