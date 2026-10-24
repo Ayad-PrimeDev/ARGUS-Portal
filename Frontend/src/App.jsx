@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
 
 function Home() {
   const [healthStatus, setHealthStatus] = useState('Checking backend connection...');
@@ -34,11 +35,8 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* 
-          This is the main routing component. 
-          Later, we can add a persistent Navigation Bar here. 
-        */}
         <div className="min-h-screen bg-gray-50">
+          <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
