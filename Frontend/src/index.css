@@ -1,8 +1,91 @@
 @import "tailwindcss";
 
+/* ─── Global Design Tokens ───────────────────────────────────────────────── */
+:root {
+  /* Brand palette */
+  --color-ivory:      #FBF9F5;
+  --color-ivory-dim:  #F4F1EA;
+  --color-green:      #1B382B;
+  --color-green-dark: #142A20;
+  --color-charcoal:   #1C201D;
+  --color-slate:      #5C645E;
+  --color-terracotta: #C05634;
+  --color-border:     #E7E3DA;
+}
+
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
+  font-family: 'Inter', Arial, sans-serif;
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ─── Typography utilities ───────────────────────────────────────────────── */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* ─── Focus ring ─────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-green);
+  outline-offset: 2px;
+}
+
+/* ─── Smooth transitions ─────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .transition-default {
+    transition: all 150ms ease;
+  }
+}
+
+/* ─── Card hover lift ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .card-lift {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(28, 32, 29, 0.10);
+  }
+}
+
+/* ─── Image zoom on card hover ───────────────────────────────────────────── */
+.card-img-wrap {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card-img-wrap img {
+    transition: transform 350ms ease;
+  }
+  .card-lift:hover .card-img-wrap img {
+    transform: scale(1.04);
+  }
+}
+
+/* ─── Skeleton pulse ─────────────────────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: skeleton-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+/* ─── Scrollbar (webkit) ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-ivory); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-slate); }

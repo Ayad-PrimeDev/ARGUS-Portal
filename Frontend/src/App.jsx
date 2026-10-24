@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
+import Items from './pages/Items';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,7 +27,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
+              <Route path="/items" element={<Items />} />
               <Route
                 path="/profile"
                 element={
