@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import api from './services/api';
+import { AuthProvider } from './context/AuthContext';
 
 function Home() {
   const [healthStatus, setHealthStatus] = useState('Checking backend connection...');
@@ -28,22 +29,24 @@ function Home() {
 
 function App() {
   return (
-    <BrowserRouter>
-      {/* 
-        This is the main routing component. 
-        Later, we can add a persistent Navigation Bar here. 
-      */}
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<div className="p-8 text-center text-2xl font-bold">Login Page Placeholder</div>} />
-          <Route path="/register" element={<div className="p-8 text-center text-2xl font-bold">Register Page Placeholder</div>} />
-          <Route path="/dashboard" element={<div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>} />
-          <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
-          <Route path="/profile" element={<div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        {/* 
+          This is the main routing component. 
+          Later, we can add a persistent Navigation Bar here. 
+        */}
+        <div className="min-h-screen bg-gray-50">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<div className="p-8 text-center text-2xl font-bold">Login Page Placeholder</div>} />
+            <Route path="/register" element={<div className="p-8 text-center text-2xl font-bold">Register Page Placeholder</div>} />
+            <Route path="/dashboard" element={<div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>} />
+            <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
+            <Route path="/profile" element={<div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
