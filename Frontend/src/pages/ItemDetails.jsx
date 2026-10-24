@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { getItemById } from '../services/itemService';
 import { createClaim } from '../services/claimService';
 import { useAuth } from '../context/AuthContext';
@@ -113,7 +113,6 @@ function ItemDetailsSkeleton() {
  */
 function ItemDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
 
@@ -705,7 +704,7 @@ function ItemDetails() {
                             onChange={(e) => setProvidedAnswer(e.target.value)}
                             placeholder="Enter the correct answer..."
                             disabled={claimSubmitting}
-                            className="w-full px-3.5 py-2.5 text-xs bg-[#FBF9F5] border border-[#E7E3DA] rounded-lg focus:bg-white focus:border-[#1B382B] focus:outline-none transition-colors"
+                            className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#E7E3DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B382B]/20 focus:border-[#1B382B] transition-colors"
                             required
                           />
                         </div>
@@ -727,7 +726,7 @@ function ItemDetails() {
                           onChange={(e) => setClaimMessage(e.target.value)}
                           placeholder="Describe specific features (e.g. markings, serial number, background picture, contents, or where/when you misplaced it)..."
                           disabled={claimSubmitting}
-                          className="w-full px-3.5 py-2.5 text-xs bg-[#FBF9F5] border border-[#E7E3DA] rounded-lg focus:bg-white focus:border-[#1B382B] focus:outline-none transition-colors resize-y"
+                          className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#E7E3DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B382B]/20 focus:border-[#1B382B] transition-colors resize-y"
                           required
                         />
                         <span className="block text-[11px] text-[#5C645E] mt-1">

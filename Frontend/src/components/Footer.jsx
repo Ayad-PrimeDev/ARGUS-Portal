@@ -47,7 +47,7 @@ function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/items?action=report" className="hover:text-[#1B382B] transition-colors">
+                <Link to="/report" className="hover:text-[#1B382B] transition-colors">
                   Report an Item
                 </Link>
               </li>

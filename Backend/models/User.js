@@ -18,6 +18,14 @@ const userSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         required: false // Optional field for the user's avatar/profile picture
+    },
+    bio: {
+        type: String,
+        default: '' // Optional short user bio
+    },
+    phoneNumber: {
+        type: String,
+        default: '' // Optional contact phone number
     }
 }, {
     // Automatically manages 'createdAt' and 'updatedAt' fields

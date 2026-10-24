@@ -8,6 +8,7 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const claimRoutes = require('./routes/claimRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +44,9 @@ app.use('/api/items', itemRoutes);
 
 // Claim Routes
 app.use('/api/claims', claimRoutes);
+
+// User & Reputation Routes
+app.use('/api/users', userRoutes);
 
 // 404 handler for undefined routes
 app.use(notFound);

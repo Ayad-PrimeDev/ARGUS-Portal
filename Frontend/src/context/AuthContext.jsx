@@ -78,6 +78,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Update locally stored user data (e.g. after profile edit)
+   * @param {Object} updatedFields
+   */
+  const updateUser = (updatedFields) => {
+    setUser((prev) => {
+      const merged = { ...prev, ...updatedFields };
+      localStorage.setItem('user', JSON.stringify(merged));
+      return merged;
+    });
+  };
+
   // Values exposed to any component consuming this context
   const contextValue = {
     user,
@@ -86,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
   };
 
   return (

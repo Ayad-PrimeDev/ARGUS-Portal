@@ -6,6 +6,7 @@ import ItemDetails from './pages/ItemDetails';
 import ReportItem from './pages/ReportItem';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -52,7 +53,7 @@ function App() {
                 path="/profile"
                 element={
                   <ProtectedRoute>
-                    <div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>
+                    <Profile />
                   </ProtectedRoute>
                 }
               />

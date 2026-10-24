@@ -168,7 +168,9 @@ function ItemCard({ item }) {
 
           {/* Title */}
           <h3 className="font-display text-[15px] font-semibold text-[#1B382B] leading-snug mb-2 line-clamp-2">
-            {item.title}
+            <Link to={`/items/${item._id}`} className="hover:text-[#C05634] transition-colors">
+              {item.title}
+            </Link>
           </h3>
 
           {/* Description */}
@@ -196,10 +198,6 @@ function ItemCard({ item }) {
             {item.location}
           </span>
 
-          {/* View Details — links to /items/:id when that page is ready.
-              Currently no detail page exists in this commit, so the link
-              points to /items/:id as a placeholder consistent with the
-              route convention. */}
           <Link
             to={`/items/${item._id}`}
             className={`text-[12px] font-semibold shrink-0 transition-colors ${
@@ -313,7 +311,7 @@ function Items() {
 
   /* ─── Render ─────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-[#FBF9F5] text-[#1C201D]">
+    <div className="min-h-screen bg-[#FAF8F5] text-[#1C201D]">
 
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="bg-[#1B382B] text-[#FBF9F5]">
@@ -379,20 +377,20 @@ function Items() {
                 value={searchInput}
                 onChange={handleSearchChange}
                 placeholder="Search items, keywords, or descriptions…"
-                className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[#E7E3DA] rounded-lg text-[#1C201D] placeholder-[#5C645E] focus:outline-none focus:ring-2 focus:ring-[#1B382B]/30 focus:border-[#1B382B] transition-colors"
+                className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-[#E7E3DA] rounded-lg text-[#1C201D] placeholder-[#5C645E]/70 focus:outline-none focus:ring-2 focus:ring-[#1B382B]/20 focus:border-[#1B382B] transition-colors"
               />
             </div>
 
             {/* Type filter tabs */}
-            <div className="flex items-center gap-1 bg-white border border-[#E7E3DA] rounded-lg p-1 shrink-0">
+            <div className="flex items-center gap-1 bg-white border border-[#E7E3DA] rounded-lg p-1 shrink-0 shadow-2xs">
               {ITEM_TYPES.map((t) => (
                 <button
                   key={t.value}
                   type="button"
                   onClick={() => handleTypeChange(t.value)}
-                  className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
                     activeType === t.value
-                      ? 'bg-[#1B382B] text-[#FBF9F5] shadow-sm'
+                      ? 'bg-[#1B382B] text-[#FBF9F5] shadow-xs'
                       : 'text-[#5C645E] hover:text-[#1C201D] hover:bg-[#F4F1EA]'
                   }`}
                 >
@@ -407,7 +405,7 @@ function Items() {
                 id="items-location"
                 value={activeLocation}
                 onChange={(e) => setActiveLocation(e.target.value)}
-                className="py-2.5 px-3 text-sm bg-white border border-[#E7E3DA] rounded-lg text-[#1C201D] focus:outline-none focus:ring-2 focus:ring-[#1B382B]/30 focus:border-[#1B382B] transition-colors shrink-0 cursor-pointer"
+                className="py-2 px-3 text-sm bg-white border border-[#E7E3DA] rounded-lg text-[#1C201D] focus:outline-none focus:ring-2 focus:ring-[#1B382B]/20 focus:border-[#1B382B] transition-colors shrink-0 cursor-pointer"
               >
                 <option value="">All Locations</option>
                 {locationOptions.map((loc) => (

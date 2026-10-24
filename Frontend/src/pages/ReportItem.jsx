@@ -354,10 +354,10 @@ function ReportItem() {
               onChange={handleChange}
               disabled={isSubmitting}
               placeholder={isLost ? 'e.g. Black Leather Bi-Fold Wallet' : 'e.g. Blue Hydro Flask Water Bottle'}
-              className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
+              className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
                 errors.title
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                  ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                  : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
               }`}
             />
             {errors.title && (
@@ -376,10 +376,10 @@ function ReportItem() {
               value={formData.category}
               onChange={handleChange}
               disabled={isSubmitting}
-              className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors cursor-pointer ${
+              className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors cursor-pointer ${
                 errors.category
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                  ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                  : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
               }`}
             >
               <option value="">Select a category</option>
@@ -408,10 +408,10 @@ function ReportItem() {
                 onChange={handleChange}
                 disabled={isSubmitting}
                 placeholder={isLost ? 'e.g. Library 2nd Floor' : 'e.g. Student Center Cafeteria'}
-                className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
+                className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
                   errors.location
-                    ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                    ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                    : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
                 }`}
               />
               {errors.location && (
@@ -431,10 +431,10 @@ function ReportItem() {
                 value={formData.date}
                 onChange={handleChange}
                 disabled={isSubmitting}
-                className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
+                className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
                   errors.date
-                    ? 'border-red-400 focus:border-red-500'
-                    : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                    ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                    : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
                 }`}
               />
               {errors.date && (
@@ -460,10 +460,10 @@ function ReportItem() {
                   ? 'Describe distinctive features, brand, color, or condition...'
                   : 'Describe general physical appearance. Avoid disclosing details used in the verification question.'
               }
-              className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors resize-y ${
+              className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors resize-y ${
                 errors.description
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                  ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                  : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
               }`}
             />
             {errors.description && (
@@ -484,10 +484,10 @@ function ReportItem() {
               onChange={handleChange}
               disabled={isSubmitting}
               placeholder="e.g. Email or Phone Number"
-              className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
+              className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
                 errors.contactInformation
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                  ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                  : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
               }`}
             />
             {errors.contactInformation ? (
@@ -512,7 +512,7 @@ function ReportItem() {
               onChange={handleChange}
               disabled={isSubmitting}
               placeholder="https://example.com/photo.jpg"
-              className="w-full px-3.5 py-2 text-sm bg-white border border-[#E7E3DA] rounded-lg focus:outline-none focus:border-[#1B382B] transition-colors"
+              className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#E7E3DA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B382B]/20 focus:border-[#1B382B] transition-colors"
             />
           </div>
 
@@ -540,10 +540,10 @@ function ReportItem() {
                   onChange={handleChange}
                   disabled={isSubmitting}
                   placeholder='e.g. "What sticker is on the back?"'
-                  className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
+                  className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
                     errors.secretQuestion
-                      ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                      ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                      : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
                   }`}
                 />
                 {errors.secretQuestion && (
@@ -563,10 +563,10 @@ function ReportItem() {
                   onChange={handleChange}
                   disabled={isSubmitting}
                   placeholder='e.g. "NASA logo"'
-                  className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
+                  className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none transition-colors ${
                     errors.secretAnswer
-                      ? 'border-red-400 focus:border-red-500'
-                      : 'border-[#E7E3DA] focus:border-[#1B382B]'
+                      ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                      : 'border-[#E7E3DA] focus:border-[#1B382B] focus:ring-2 focus:ring-[#1B382B]/20'
                   }`}
                 />
                 {errors.secretAnswer ? (
