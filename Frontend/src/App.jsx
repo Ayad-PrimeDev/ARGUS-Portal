@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import api from './services/api';
 import { AuthProvider } from './context/AuthContext';
 import Register from './pages/Register';
+import Login from './pages/Login';
 
 function Home() {
   const [healthStatus, setHealthStatus] = useState('Checking backend connection...');
@@ -39,7 +40,7 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<div className="p-8 text-center text-2xl font-bold">Login Page Placeholder</div>} />
+            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>} />
             <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
