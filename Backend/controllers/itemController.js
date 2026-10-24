@@ -146,10 +146,34 @@ const deleteItem = async (req, res, next) => {
     }
 };
 
+// @desc    Get single item by ID
+// @route   GET /api/items/:id
+// @access  Public
+const getItemById = async (req, res, next) => {
+    try {
+        const item = await Item.findById(req.params.id)
+            .populate('submitterId', 'name email profileImage')
+            .select('-secretAnswer'); // Protect secret answer from public view
+
+        // 1. Check if item exists
+        if (!item) {
+            res.status(404);
+            throw new Error('Item not found');
+        }
+
+        // 2. Return item
+        res.status(200).json(item);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createItem,
     getItems,
+    getItemById,
     updateItem,
     deleteItem
 };
+
 

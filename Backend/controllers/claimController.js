@@ -21,7 +21,19 @@ const createClaim = async (req, res, next) => {
             throw new Error('Item not found');
         }
 
-        // 3. Create Claim document in MongoDB
+        // 3. Verify user is not claiming their own item
+        if (item.submitterId.toString() === req.user._id.toString()) {
+            res.status(400);
+            throw new Error('You cannot submit a claim for an item you reported');
+        }
+
+        // 4. Verify item is active and eligible for claims
+        if (item.status !== 'ACTIVE') {
+            res.status(400);
+            throw new Error('This item is no longer available for claims');
+        }
+
+        // 5. Create Claim document in MongoDB
         const claim = await Claim.create({
             itemId,
             requesterId: req.user._id, // Assign logged-in user ID

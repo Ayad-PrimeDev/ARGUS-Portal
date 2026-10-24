@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createItem, getItems, updateItem, deleteItem } = require('../controllers/itemController');
+const { createItem, getItems, getItemById, updateItem, deleteItem } = require('../controllers/itemController');
 const { protect } = require('../middleware/authMiddleware');
 const { createItemValidation } = require('../middleware/validateMiddleware');
 
@@ -8,6 +8,11 @@ const { createItemValidation } = require('../middleware/validateMiddleware');
 // GET /api/items
 // Public route
 router.get('/', getItems);
+
+// Define route to view a single item by ID
+// GET /api/items/:id
+// Public route
+router.get('/:id', getItemById);
 
 // Define route to create an item
 // POST /api/items
