@@ -131,7 +131,7 @@ function Home() {
             </Link>
 
             <Link
-              to="/items?action=report"
+              to="/report"
               className="inline-flex items-center px-4 py-2 rounded-md bg-[#1B382B] text-[#FBF9F5] font-medium hover:bg-[#142A20] transition-colors shadow-xs"
             >
               Report an Item &rarr;
@@ -241,7 +241,7 @@ function Home() {
             </p>
             <div className="flex justify-center gap-2">
               <Link
-                to="/items?action=report"
+                to="/report"
                 className="px-4 py-2 bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-xs font-semibold rounded transition-colors"
               >
                 Report an Item

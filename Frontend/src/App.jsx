@@ -1,8 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Items from './pages/Items';
 import ItemDetails from './pages/ItemDetails';
+import ReportItem from './pages/ReportItem';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -30,6 +31,23 @@ function App() {
               />
               <Route path="/items" element={<Items />} />
               <Route path="/items/:id" element={<ItemDetails />} />
+              <Route
+                path="/report"
+                element={
+                  <ProtectedRoute>
+                    <ReportItem />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/report/:type"
+                element={
+                  <ProtectedRoute>
+                    <ReportItem />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/items/report" element={<Navigate to="/report" replace />} />
               <Route
                 path="/profile"
                 element={

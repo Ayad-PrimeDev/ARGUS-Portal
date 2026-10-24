@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 /**
  * Login Page
  * Allows registered users to authenticate with email and password.
- * Integrates with AuthContext and redirects to /dashboard upon success.
+ * Integrates with AuthContext and redirects to destination or /dashboard upon success.
  */
 function Login() {
   const [formData, setFormData] = useState({
@@ -14,6 +14,8 @@ function Login() {
   });
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
 
   // Consume login function and loading state from AuthContext
   const { login, loading } = useAuth();
@@ -45,8 +47,8 @@ function Login() {
         password: formData.password,
       });
 
-      // Redirect user to dashboard after successful login
-      navigate('/dashboard');
+      // Redirect user to intended page or dashboard after successful login
+      navigate(redirectPath);
     } catch (err) {
       // Handles wrong password, invalid email, or server error
       setErrorMessage(err.message || 'Login failed. Please check your credentials.');

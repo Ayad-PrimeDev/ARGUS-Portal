@@ -526,7 +526,7 @@ function Items() {
                 : 'The registry is currently empty. Be the first to report a lost or found item.'}
             </p>
             <Link
-              to="/items?action=report"
+              to="/report"
               className="inline-block px-5 py-2.5 bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-sm font-semibold rounded-lg transition-colors"
             >
               Report an Item

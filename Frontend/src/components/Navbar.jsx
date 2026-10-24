@@ -51,7 +51,7 @@ function Navbar() {
                 All Listings
               </Link>
               <Link
-                to="/items?action=report"
+                to="/report"
                 className="text-[#5C645E] hover:text-[#1C201D] px-3 py-1.5 rounded text-sm font-medium transition-colors"
               >
                 Report an Item

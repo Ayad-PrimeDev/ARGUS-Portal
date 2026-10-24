@@ -25,7 +25,18 @@ export const getItemById = async (id) => {
   return response.data;
 };
 
+/**
+ * Create a new lost or found item in the registry
+ * @param {Object} itemData - Item details matching backend Item model
+ * @returns {Promise<Object>} - Created item record
+ */
+export const createItem = async (itemData) => {
+  const response = await api.post('/items', itemData);
+  return response.data;
+};
+
 export default {
   getItems,
   getItemById,
+  createItem,
 };
