@@ -54,19 +54,19 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md border border-gray-200 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#FBF9F5] p-4">
+      <div className="w-full max-w-md bg-white rounded-md shadow-xs border border-[#E7E3DA] p-8">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Sign in to access your ARGUS dashboard
+          <h1 className="text-2xl font-bold tracking-tight text-[#1B382B]">Welcome Back</h1>
+          <p className="text-xs sm:text-sm text-[#5C645E] mt-1.5">
+            Sign in to access your ARGUS reports and claims
           </p>
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+          <div className="mb-4 p-3 bg-red-50/70 border border-red-200 text-red-700 text-xs sm:text-sm rounded">
             {errorMessage}
           </div>
         )}
@@ -77,7 +77,7 @@ function Login() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs font-medium text-[#1C201D] mb-1"
             >
               Email Address
             </label>
@@ -87,9 +87,9 @@ function Login() {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="e.g. user@example.com"
+              placeholder="name@example.com"
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 placeholder-gray-400 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-[#E7E3DA] rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1B382B] focus:border-[#1B382B] text-[#1C201D] placeholder-[#5C645E] disabled:bg-[#F4F1EA]"
               required
             />
           </div>
@@ -98,7 +98,7 @@ function Login() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs font-medium text-[#1C201D] mb-1"
             >
               Password
             </label>
@@ -110,7 +110,7 @@ function Login() {
               onChange={handleChange}
               placeholder="••••••••"
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 placeholder-gray-400 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-[#E7E3DA] rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#1B382B] focus:border-[#1B382B] text-[#1C201D] placeholder-[#5C645E] disabled:bg-[#F4F1EA]"
               required
             />
           </div>
@@ -119,18 +119,18 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed mt-2"
+            className="w-full py-2.5 px-4 bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-sm font-semibold rounded shadow-xs transition-colors disabled:bg-[#1B382B]/60 disabled:cursor-not-allowed mt-2 cursor-pointer"
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
         {/* Footer Navigation */}
-        <div className="text-center mt-6 text-sm text-gray-600">
+        <div className="text-center mt-6 text-xs text-[#5C645E]">
           Don't have an account?{' '}
           <Link
             to="/register"
-            className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
+            className="text-[#1B382B] hover:text-[#C05634] font-medium transition-colors"
           >
             Create an account
           </Link>

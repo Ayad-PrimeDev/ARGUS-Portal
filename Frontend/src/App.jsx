@@ -1,64 +1,43 @@
-import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import api from './services/api';
 import { AuthProvider } from './context/AuthContext';
+import Home from './pages/Home';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
-
-function Home() {
-  const [healthStatus, setHealthStatus] = useState('Checking backend connection...');
-
-  useEffect(() => {
-    // Call GET /api/health using our configured axios instance
-    api.get('/health')
-      .then((response) => {
-        setHealthStatus(`✅ Backend Connected: ${response.data.message || 'OK'}`);
-      })
-      .catch((error) => {
-        setHealthStatus(`❌ Backend Connection Failed: ${error.message}`);
-      });
-  }, []);
-
-  return (
-    <div className="p-8 text-center">
-      <h2 className="text-2xl font-bold mb-4">Home Page Placeholder</h2>
-      <div className="p-4 bg-white rounded shadow inline-block border">
-        {healthStatus}
-      </div>
-    </div>
-  );
-}
+import Footer from './components/Footer';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
+        <div className="min-h-screen bg-[#FAF8F5] flex flex-col justify-between">
+          <div>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <div className="p-8 text-center text-2xl font-bold">Dashboard Page Placeholder</div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/items" element={<div className="p-8 text-center text-2xl font-bold">Items Page Placeholder</div>} />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <div className="p-8 text-center text-2xl font-bold">Profile Page Placeholder</div>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </div>
+          <Footer />
         </div>
       </BrowserRouter>
     </AuthProvider>
