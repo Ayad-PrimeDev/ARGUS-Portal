@@ -71,86 +71,153 @@ function Home() {
 
   return (
     <div className="bg-[#FAF8F5] text-[#1C201D] min-h-screen flex flex-col">
-      {/* 1. Hero Section */}
-      <section className="border-b border-[#E7E3DA] bg-[#F7F4EE] py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Subtle Tag */}
-          <div className="inline-flex items-center space-x-2 bg-white border border-[#E7E3DA] px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#1B382B] mb-6 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C05634]" />
-            <span className="tracking-wide">Public Lost &amp; Found Registry</span>
-          </div>
+      {/* 1. Hero Section: Premium Atmospheric Canvas with 3D Visual */}
+      <section className="relative border-b border-slate-800/80 bg-[#08101E] overflow-hidden py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 transition-colors">
+        {/* Layered Radial Lighting & Ambient Depth */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Subtle celestial/geo coordinate dots */}
+          <div className="absolute inset-0 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:28px_28px] opacity-10"></div>
+          {/* Electric blue focal glow (top right) */}
+          <div className="absolute -top-24 right-0 w-[550px] h-[550px] bg-sky-500/15 rounded-full blur-3xl animate-hero-glow"></div>
+          {/* Subtle gold/amber rim glow (center right) */}
+          <div className="absolute top-1/3 right-1/4 w-[380px] h-[380px] bg-amber-500/10 rounded-full blur-3xl"></div>
+          {/* Deep slate base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#08101E] via-[#08101E]/90 to-transparent lg:to-[#08101E]/30"></div>
+          {/* Bottom fade into section border */}
+          <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#08101E] to-transparent"></div>
+        </div>
 
-          {/* Main Headline */}
-          <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1B382B] mb-5 leading-[1.15]">
-            Reuniting people with
-            <br />
-            <span className="text-[#1C201D] font-normal italic">what matters most.</span>
-          </h1>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Left Column: Calm, Prominent Headline & Interactive Controls */}
+            <div className="lg:col-span-7 text-left">
+              {/* Main Headline */}
+              <h1 className="font-display text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-white mb-5 leading-[1.12]">
+                Reuniting people with
+                <br />
+                <span className="text-slate-300 font-normal italic">what matters most.</span>
+              </h1>
 
-          {/* Purposeful Subtext */}
-          <p className="text-base sm:text-lg text-[#5C645E] max-w-2xl mx-auto mb-9 leading-relaxed font-normal">
-            A trusted platform to report lost belongings, return found articles, and safely coordinate verified ownership claims.
-          </p>
+              {/* Purposeful Subtext */}
+              <p className="text-base sm:text-lg text-slate-300/90 max-w-xl mb-8 leading-relaxed font-normal">
+                A trusted platform to report lost belongings, return found articles, and safely coordinate verified ownership claims.
+              </p>
 
-          {/* Functional Search Bar */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 mb-8 bg-white p-2 rounded-xl border border-[#E7E3DA] shadow-xs focus-within:border-[#1B382B] focus-within:ring-2 focus-within:ring-[#1B382B]/15 transition-all"
-          >
-            <div className="flex-1 flex items-center pl-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4 text-[#5C645E] shrink-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              {/* Functional Search Bar */}
+              <form
+                onSubmit={handleSearchSubmit}
+                className="max-w-xl flex flex-col sm:flex-row gap-2 mb-7 bg-white/95 p-2 rounded-xl border border-white/20 shadow-xl focus-within:ring-2 focus-within:ring-sky-400/50 transition-all"
               >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by keyword, item, or location (e.g. Wallet, Library, Keys)..."
-                className="w-full px-3 py-2.5 bg-transparent text-[#1C201D] placeholder-[#5C645E]/70 text-sm focus:outline-none"
-              />
+                <div className="flex-1 flex items-center pl-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4 text-[#5C645E] shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by keyword, item, or location (e.g. Wallet, Library, Keys)..."
+                    className="w-full px-3 py-2.5 bg-transparent text-[#1C201D] placeholder-[#5C645E]/80 text-sm focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-xs"
+                >
+                  Search Registry
+                </button>
+              </form>
+
+              {/* Primary Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+                <Link
+                  to="/items?type=LOST"
+                  className="inline-flex items-center px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-slate-100 font-medium transition-colors shadow-xs"
+                >
+                  <span className="w-2 h-2 rounded-full bg-[#C05634] mr-2" />
+                  Browse Lost Items
+                </Link>
+
+                <Link
+                  to="/items?type=FOUND"
+                  className="inline-flex items-center px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-slate-100 font-medium transition-colors shadow-xs"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 mr-2" />
+                  Browse Found Items
+                </Link>
+
+                <Link
+                  to="/report"
+                  className="inline-flex items-center px-4 py-2.5 rounded-lg bg-[#C05634] hover:bg-[#A8482A] text-white font-semibold transition-colors shadow-xs"
+                >
+                  Report an Item &rarr;
+                </Link>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center gap-5 sm:gap-6 text-xs text-slate-400">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span>Verified Claims</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span>Real-Time Matching</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Free Community Service</span>
+                </div>
+              </div>
             </div>
-            <button
-              type="submit"
-              className="bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-xs"
-            >
-              Search Registry
-            </button>
-          </form>
 
-          {/* Primary Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm">
-            <Link
-              to="/items?type=LOST"
-              className="inline-flex items-center px-4 py-2 rounded-lg bg-white border border-[#E7E3DA] text-[#1C201D] font-medium hover:border-[#C05634] hover:text-[#C05634] transition-colors shadow-2xs"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#C05634] mr-2" />
-              Browse Lost Items
-            </Link>
+            {/* Right Column: High-Quality 3D Composition Visual */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <div className="relative max-w-xs sm:max-w-sm lg:max-w-md w-full animate-hero-float">
+                {/* Radial Glow Frame behind image */}
+                <div className="absolute -inset-1.5 bg-gradient-to-tr from-sky-500/20 via-transparent to-amber-500/20 rounded-3xl blur-lg opacity-75"></div>
 
-            <Link
-              to="/items?type=FOUND"
-              className="inline-flex items-center px-4 py-2 rounded-lg bg-white border border-[#E7E3DA] text-[#1C201D] font-medium hover:border-[#1B382B] hover:text-[#1B382B] transition-colors shadow-2xs"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#1B382B] mr-2" />
-              Browse Found Items
-            </Link>
+                {/* 3D Visual Card Container */}
+                <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-[#0C172B]/80 shadow-2xl backdrop-blur-xs">
+                  <img
+                    src="/hero-lost-items.jpg"
+                    alt="3D composition of everyday lost items including keys, wallet, headphones, and backpack arranged around a locator pin"
+                    className="w-full h-auto object-cover aspect-square"
+                    loading="eager"
+                  />
 
-            <Link
-              to="/report"
-              className="inline-flex items-center px-4 py-2 rounded-lg bg-[#1B382B] text-[#FBF9F5] font-medium hover:bg-[#142A20] transition-colors shadow-xs"
-            >
-              Report an Item &rarr;
-            </Link>
+                  {/* Elegant Floating Status Badge */}
+                  <div className="absolute bottom-3 left-3 right-3 bg-[#08101E]/90 backdrop-blur-md border border-white/15 px-3.5 py-2.5 rounded-xl shadow-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      </span>
+                      <div>
+                        <p className="text-xs font-bold text-white tracking-wide">Live Recovery Network</p>
+                        <p className="text-[10px] text-slate-300">Active registry &amp; matching</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

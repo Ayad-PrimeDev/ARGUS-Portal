@@ -12,12 +12,9 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand & Purpose */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-2.5 mb-3">
+            <div className="mb-3">
               <span className="font-serif text-xl font-bold tracking-tight text-[#1B382B]">
                 ARGUS
-              </span>
-              <span className="text-[11px] uppercase tracking-wider text-[#C05634] font-semibold bg-[#C05634]/10 px-2 py-0.5 rounded">
-                Lost &amp; Found
               </span>
             </div>
             <p className="text-sm text-[#5C645E] leading-relaxed max-w-md">

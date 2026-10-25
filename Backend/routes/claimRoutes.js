@@ -1,13 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { createClaim, getClaims, updateClaimStatus } = require('../controllers/claimController');
+const { createClaim, getClaims, getMyClaims, updateClaimStatus } = require('../controllers/claimController');
 const { protect } = require('../middleware/authMiddleware');
 const { createClaimValidation } = require('../middleware/validateMiddleware');
 
-// Define route to view all claims on items created by logged-in user
+// Define route to view all claims on items created by logged-in user (incoming claims)
 // GET /api/claims
 // Protected route - requires authentication
 router.get('/', protect, getClaims);
+
+// Define route to view all claims submitted by the logged-in user
+// GET /api/claims/my
+// Protected route - requires authentication
+router.get('/my', protect, getMyClaims);
 
 // Define route to submit a claim for an item
 // POST /api/claims

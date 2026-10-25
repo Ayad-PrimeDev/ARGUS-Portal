@@ -35,8 +35,18 @@ export const createItem = async (itemData) => {
   return response.data;
 };
 
+/**
+ * Get all items submitted by the currently logged-in user
+ * @returns {Promise<Array>} - List of user's items
+ */
+export const getMyItems = async () => {
+  const response = await api.get('/items/my');
+  return response.data;
+};
+
 export default {
   getItems,
   getItemById,
   createItem,
+  getMyItems,
 };

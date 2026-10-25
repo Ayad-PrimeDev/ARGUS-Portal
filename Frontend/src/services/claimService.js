@@ -35,8 +35,18 @@ export const updateClaimStatus = async (claimId, status) => {
   return response.data;
 };
 
+/**
+ * Get all claims submitted by the logged-in user
+ * @returns {Promise<Array>} - List of user's submitted claims
+ */
+export const getMyClaims = async () => {
+  const response = await api.get('/claims/my');
+  return response.data;
+};
+
 export default {
   createClaim,
   getClaims,
+  getMyClaims,
   updateClaimStatus,
 };

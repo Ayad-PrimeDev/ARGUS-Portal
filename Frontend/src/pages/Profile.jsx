@@ -49,7 +49,7 @@ const TIER_CONFIG = {
     badgeBorder: 'border-[#4A6572]/40',
     barColor: 'bg-[#4A6572]',
     iconColor: '#4A6572',
-    description: 'Exemplary Partner · Pillar of campus lost & found',
+    description: 'Exemplary Partner · Pillar of community lost & found',
   },
   Diamond: {
     label: 'Diamond',
@@ -431,14 +431,9 @@ function Profile() {
       <section className="bg-white border border-[#E7E3DA] rounded-2xl p-6 sm:p-7 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#E7E3DA]">
           <div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs font-semibold tracking-wider uppercase text-[#5C645E]">
-                Contribution Standing
-              </span>
-              <span className="text-[11px] px-2 py-0.5 rounded bg-[#FAF8F5] text-[#5C645E] border border-[#E7E3DA]">
-                Verified Server Calculation
-              </span>
-            </div>
+            <span className="text-xs font-semibold tracking-wider uppercase text-[#5C645E]">
+              Contribution Standing
+            </span>
             <div className="flex items-baseline gap-3 mt-1.5">
               <span className="text-3xl sm:text-4xl font-serif font-black text-[#1C201D]">
                 {reputation.points}
@@ -590,7 +585,7 @@ function Profile() {
             {reputation.foundReportsCount}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
-            Found belongings published to campus registry
+            Found belongings published to community registry
           </p>
         </div>
       </section>
@@ -892,7 +887,7 @@ function Profile() {
                   value={editFormData.bio}
                   onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
                   className="w-full px-3 py-2 text-sm border border-[#DCD7CD] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1B382B] focus:border-[#1B382B] resize-none"
-                  placeholder="Tell the community a little about yourself or your campus affiliation..."
+                  placeholder="Tell the community a little about yourself..."
                 />
               </div>
 

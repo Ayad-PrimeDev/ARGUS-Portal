@@ -168,10 +168,25 @@ const getItemById = async (req, res, next) => {
     }
 };
 
+// @desc    Get all items submitted by the logged-in user
+// @route   GET /api/items/my
+// @access  Private (Requires authentication)
+const getMyItems = async (req, res, next) => {
+    try {
+        const items = await Item.find({ submitterId: req.user._id })
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(items);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createItem,
     getItems,
     getItemById,
+    getMyItems,
     updateItem,
     deleteItem
 };

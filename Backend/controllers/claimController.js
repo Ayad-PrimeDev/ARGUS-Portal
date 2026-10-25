@@ -128,8 +128,24 @@ const updateClaimStatus = async (req, res, next) => {
     }
 };
 
+// @desc    Get all claims submitted by the logged-in user
+// @route   GET /api/claims/my
+// @access  Private (Requires authentication)
+const getMyClaims = async (req, res, next) => {
+    try {
+        const claims = await Claim.find({ requesterId: req.user._id })
+            .populate('itemId', 'title description category type location imageUrl status')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(claims);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createClaim,
     getClaims,
+    getMyClaims,
     updateClaimStatus
 };
