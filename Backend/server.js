@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
@@ -19,6 +20,9 @@ connectDB();
 
 // Initialize Express app
 const app = express();
+
+// Trust Render's reverse proxy for secure cookies
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -55,7 +59,7 @@ app.use('/api/items', itemRoutes);
 app.use('/api/claims', claimRoutes);
 app.use('/api/users', userRoutes);
 
-// Error handling
+// Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
 
@@ -64,5 +68,5 @@ const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT} in ${NODE_ENV} mode`);
+  console.log(`ARGUS Backend is running on port ${PORT} in ${NODE_ENV} mode`);
 });
