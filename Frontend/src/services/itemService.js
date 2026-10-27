@@ -44,9 +44,32 @@ export const getMyItems = async () => {
   return response.data;
 };
 
+/**
+ * Update an existing item report (submitter only)
+ * @param {string} id - Item ObjectId
+ * @param {Object} updateData - Fields to update (title, description, category, location, date, imageUrl, contactInformation, status)
+ * @returns {Promise<Object>} - Updated item record
+ */
+export const updateItem = async (id, updateData) => {
+  const response = await api.put(`/items/${id}`, updateData);
+  return response.data;
+};
+
+/**
+ * Delete an item report (submitter only)
+ * @param {string} id - Item ObjectId
+ * @returns {Promise<Object>} - Success confirmation { message, id }
+ */
+export const deleteItem = async (id) => {
+  const response = await api.delete(`/items/${id}`);
+  return response.data;
+};
+
 export default {
   getItems,
   getItemById,
   createItem,
   getMyItems,
+  updateItem,
+  deleteItem,
 };

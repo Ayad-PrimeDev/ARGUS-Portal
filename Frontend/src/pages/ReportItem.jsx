@@ -2,33 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams, useLocation, Link } from 'react-router-dom';
 import { createItem } from '../services/itemService';
 import { useAuth } from '../context/AuthContext';
+import { ITEM_CATEGORIES } from '../constants/categories';
+import { getTodayDateString } from '../utils/dateUtils';
 
-/**
- * Standard Item Categories supported by ARGUS Portal.
- */
-const CATEGORIES = [
-  'Electronics',
-  'Keys & Cards',
-  'Documents & IDs',
-  'Bags & Backpacks',
-  'Wallets & Purses',
-  'Clothing & Apparel',
-  'Books & Study Materials',
-  'Jewelry & Watches',
-  'Personal Accessories',
-  'Other',
-];
-
-/**
- * Get current date formatted as YYYY-MM-DD for date input defaults and max limits.
- */
-const getTodayString = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+// Reference shared categories and today's date helper
+const CATEGORIES = ITEM_CATEGORIES;
+const getTodayString = getTodayDateString;
 
 /**
  * ReportItem Component

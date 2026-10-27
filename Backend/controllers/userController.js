@@ -53,8 +53,10 @@ const calculateTierProgress = (points) => {
  * @param {string|ObjectId} userId
  */
 const calculateUserReputation = async (userId) => {
-    // 1. Fetch all items submitted by user
-    const userItems = await Item.find({ submitterId: userId }).sort({ createdAt: -1 });
+    // 1. Fetch all items submitted by user (excluding secret verification answers)
+    const userItems = await Item.find({ submitterId: userId })
+        .select('-secretAnswer')
+        .sort({ createdAt: -1 });
 
     const lostReports = userItems.filter((i) => i.type === 'LOST');
     const foundReports = userItems.filter((i) => i.type === 'FOUND');

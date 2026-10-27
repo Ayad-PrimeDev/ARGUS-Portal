@@ -26,7 +26,7 @@ app.use(helmet()); // Sets various HTTP security headers
 app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 app.use(cors({
-  origin: 'http://localhost:5173', // Frontend URL
+  origin: process.env.CLIENT_URL || 'http://localhost:5173', // Frontend URL
   credentials: true, // Allow cookies to be sent across domains
 }));
 app.use(cookieParser()); // Parse cookies
@@ -56,6 +56,7 @@ app.use(errorHandler);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  console.log(`Server is running on port ${PORT} in ${NODE_ENV} mode`);
 });

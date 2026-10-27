@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getMyItems } from '../services/itemService';
+import { getMyItems, deleteItem } from '../services/itemService';
 import { getClaims, getMyClaims, updateClaimStatus } from '../services/claimService';
+import { formatShortDate } from '../utils/dateUtils';
+import EditItemModal from '../components/EditItemModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 /**
  * Dashboard Page Component
@@ -24,6 +27,14 @@ function Dashboard() {
   const [myClaims, setMyClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // The item currently being edited in the modal (null = modal closed)
+  const [editingItem, setEditingItem] = useState(null);
+
+  // Delete state
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deletingItem, setDeletingItem] = useState(false);
+  const [deleteModalError, setDeleteModalError] = useState('');
 
   // Active View Filter Tab: 'overview' | 'lost' | 'found' | 'incoming' | 'my-claims'
   const [activeTab, setActiveTab] = useState('overview');
@@ -87,6 +98,36 @@ function Dashboard() {
     }
   };
 
+  // Handle Delete Report Confirmation
+  const handleDeleteItem = async () => {
+    if (!itemToDelete) return;
+    setDeletingItem(true);
+    setDeleteModalError('');
+    try {
+      await deleteItem(itemToDelete._id);
+      const deletedTitle = itemToDelete.title;
+      // Remove item from state immediately
+      setItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
+      // Remove any incoming claims on this item
+      setIncomingClaims((prev) =>
+        prev.filter((c) => (c.itemId?._id || c.itemId) !== itemToDelete._id)
+      );
+      setItemToDelete(null);
+      setActionMessage({
+        type: 'success',
+        text: `Report "${deletedTitle}" was successfully deleted.`,
+      });
+      setTimeout(() => setActionMessage(null), 4000);
+    } catch (err) {
+      console.error('Delete failed:', err);
+      setDeleteModalError(
+        err.response?.data?.message || err.message || 'Unable to delete report. Please try again.'
+      );
+    } finally {
+      setDeletingItem(false);
+    }
+  };
+
   // Filter items by type
   const lostItems = items.filter((item) => item.type === 'LOST');
   const foundItems = items.filter((item) => item.type === 'FOUND');
@@ -94,14 +135,8 @@ function Dashboard() {
   const resolvedItemsCount = items.filter((item) => item.status === 'CLAIMED').length;
   const pendingIncomingCount = incomingClaims.filter((c) => c.status === 'PENDING').length;
 
-  // Date formatting helper
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Date not specified';
-    const d = new Date(dateString);
-    return isNaN(d.getTime())
-      ? 'Date not specified'
-      : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  // Date formatting helper using shared utility
+  const formatDate = formatShortDate;
 
   // Status Badge Helper
   const renderStatusBadge = (status) => {
@@ -228,9 +263,38 @@ function Dashboard() {
       </div>
 
       <div className="mt-3 pt-2.5 border-t border-[#F4F1EA] flex items-center justify-between text-xs text-[#5C645E]">
-        <span className="text-[11px] text-[#8A928D]">
-          {item.status === 'CLAIMED' ? 'Successfully returned' : 'Click to inspect listing'}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            id={`edit-item-${item._id}`}
+            onClick={(e) => { e.stopPropagation(); setEditingItem(item); }}
+            className="inline-flex items-center gap-1 text-[#1B382B] hover:text-[#C05634] font-semibold text-[11px] transition-colors cursor-pointer px-2 py-1 rounded hover:bg-[#F4F1EA]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            Edit
+          </button>
+          <button
+            type="button"
+            id={`delete-item-${item._id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteModalError('');
+              setItemToDelete(item);
+            }}
+            className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 font-semibold text-[11px] transition-colors cursor-pointer px-2 py-1 rounded hover:bg-red-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6" /><path d="M14 11v6" />
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+            </svg>
+            Delete
+          </button>
+        </div>
         <span className="text-[#1B382B] font-semibold group-hover:translate-x-0.5 transition-transform inline-flex items-center">
           View Details →
         </span>
@@ -322,7 +386,7 @@ function Dashboard() {
                 Personal Command Center
               </span>
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#1B382B]/10 text-[#1B382B] font-semibold">
-                Verified Session
+
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C201D] tracking-tight">
@@ -990,6 +1054,34 @@ function Dashboard() {
           )}
         </div>
       )}
+
+      {/* Edit Item Modal — opens when user clicks Edit on any item card */}
+      {editingItem && (
+        <EditItemModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSaved={(updatedItem) => {
+            // Update the item in local state so the card reflects new data immediately
+            setItems((prev) =>
+              prev.map((i) => (i._id === updatedItem._id ? { ...i, ...updatedItem } : i))
+            );
+            setEditingItem(null);
+          }}
+        />
+      )}
+
+      {/* Delete Item Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(itemToDelete)}
+        itemName={itemToDelete?.title}
+        onClose={() => {
+          setItemToDelete(null);
+          setDeleteModalError('');
+        }}
+        onConfirm={handleDeleteItem}
+        deleting={deletingItem}
+        error={deleteModalError}
+      />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import { getItems } from '../services/itemService';
+import { formatShortDate } from '../utils/dateUtils';
 
 /**
  * Items Listing Page
@@ -28,20 +29,11 @@ const SKELETON_COUNT = 9;
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 
 /**
- * Format a date string into a human-readable short form.
+ * Format a date string into a human-readable short form using shared utility.
  * @param {string} dateString
  */
 function formatDate(dateString) {
-  if (!dateString) return '';
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
+  return formatShortDate(dateString, '');
 }
 
 /**
@@ -219,6 +211,16 @@ function ItemCard({ item }) {
 function Items() {
   // Read initial filter state from URL query params (e.g. ?type=LOST from homepage links)
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const [deletedBanner, setDeletedBanner] = useState(location.state?.deletedTitle || null);
+
+  useEffect(() => {
+    if (location.state?.deletedTitle) {
+      window.history.replaceState({}, document.title);
+      const timer = setTimeout(() => setDeletedBanner(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   const [allItems, setAllItems]       = useState([]);   // Raw items from API
   const [loading, setLoading]         = useState(true);
@@ -312,6 +314,23 @@ function Items() {
   /* ─── Render ─────────────────────────────────────────────────────────── */
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-[#1C201D]">
+      {deletedBanner && (
+        <div className="bg-emerald-700 text-white px-4 py-3 text-sm font-medium flex items-center justify-between shadow-xs">
+          <div className="max-w-7xl mx-auto flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span>Report <strong>"{deletedBanner}"</strong> was permanently deleted.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDeletedBanner(null)}
+            className="text-xs font-semibold underline cursor-pointer ml-4"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="bg-[#1B382B] text-[#FBF9F5]">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, updateUserProfile, submitRating } from '../services/userService';
+import { formatShortDate } from '../utils/dateUtils';
 
 /**
  * Achievement Tier Metadata & Visual Themes
@@ -255,14 +256,8 @@ function Profile() {
     return <div className="flex items-center space-x-0.5">{stars}</div>;
   };
 
-  // Helper for date formatting
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Recent';
-    const date = new Date(dateString);
-    return isNaN(date.getTime())
-      ? 'Recent'
-      : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  // Helper for date formatting using shared utility
+  const formatDate = (dateString) => formatShortDate(dateString, 'Recent');
 
   // Status Chip helper
   const renderStatusBadge = (status) => {

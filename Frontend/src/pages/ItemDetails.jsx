@@ -1,26 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { getItemById } from '../services/itemService';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { getItemById, deleteItem } from '../services/itemService';
 import { createClaim } from '../services/claimService';
 import { useAuth } from '../context/AuthContext';
+import { formatLongDate } from '../utils/dateUtils';
+import EditItemModal from '../components/EditItemModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 /**
- * Format date string into human-friendly full display (e.g., "October 7, 2026").
+ * Format date string into human-friendly full display (e.g., "October 7, 2026") using shared utility.
  * @param {string} dateString
  * @returns {string}
  */
-function formatDate(dateString) {
-  if (!dateString) return 'Date not specified';
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
-}
+const formatDate = formatLongDate;
 
 /**
  * Fallback visual when an item has no image uploaded.
@@ -121,6 +113,14 @@ function ItemDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Edit modal state
+  const [editOpen, setEditOpen] = useState(false);
+
+  // Delete state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
   // Claim form state
   const [claimMessage, setClaimMessage] = useState('');
   const [providedAnswer, setProvidedAnswer] = useState('');
@@ -162,6 +162,8 @@ function ItemDetails() {
   const isActive = item?.status === 'ACTIVE';
   const isFound = item?.type === 'FOUND';
   const isLost = item?.type === 'LOST';
+
+  const navigate = useNavigate();
 
   // Handle claim form submission
   const handleClaimSubmit = async (e) => {
@@ -258,24 +260,59 @@ function ItemDetails() {
             </span>
           </nav>
 
-          <Link
-            to="/items"
-            className="inline-flex items-center gap-1.5 font-semibold text-[#1B382B] hover:text-[#C05634] transition-colors group"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex items-center gap-2">
+            {/* Edit button — visible only to the submitter of this item */}
+            {isSubmitter && (
+              <button
+                type="button"
+                id="edit-item-btn"
+                onClick={() => setEditOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] rounded-lg transition-colors cursor-pointer shadow-xs"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Edit Report
+              </button>
+            )}
+            {/* Delete button — visible only to the submitter */}
+            {isSubmitter && (
+              <button
+                type="button"
+                id="delete-item-btn"
+                onClick={() => { setDeleteError(''); setDeleteConfirmOpen(true); }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors cursor-pointer shadow-xs"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                </svg>
+                Delete
+              </button>
+            )}
+            <Link
+              to="/items"
+              className="inline-flex items-center gap-1.5 font-semibold text-[#1B382B] hover:text-[#C05634] transition-colors group"
             >
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-            Back to listings
-          </Link>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+              Back to listings
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -869,6 +906,45 @@ function ItemDetails() {
           </aside>
         </div>
       </main>
+
+      {/* Edit Item Modal — only mounts when open */}
+      {editOpen && item && (
+        <EditItemModal
+          item={item}
+          onClose={() => setEditOpen(false)}
+          onSaved={(updatedItem) => {
+            // Merge the updated fields back into local item state so the page reflects changes immediately
+            setItem((prev) => ({ ...prev, ...updatedItem }));
+            setEditOpen(false);
+          }}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteConfirmOpen}
+        itemName={item?.title}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setDeleteError('');
+        }}
+        onConfirm={async () => {
+          setDeleting(true);
+          setDeleteError('');
+          try {
+            await deleteItem(item._id);
+            navigate('/items', { state: { deletedTitle: item.title } });
+          } catch (err) {
+            console.error('Delete failed:', err);
+            setDeleteError(
+              err.response?.data?.message || err.message || 'Unable to delete report. Please try again.'
+            );
+            setDeleting(false);
+          }
+        }}
+        deleting={deleting}
+        error={deleteError}
+      />
     </div>
   );
 }

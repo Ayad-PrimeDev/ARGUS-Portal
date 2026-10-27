@@ -1,4 +1,5 @@
 const Item = require('../models/Item');
+const Claim = require('../models/Claim');
 
 // @desc    Create a new lost or found item
 // @route   POST /api/items
@@ -66,9 +67,10 @@ const getItems = async (req, res, next) => {
             filter.category = req.query.category;
         }
 
-        // 4. Query database, populate submitter info, sort newest first
+        // 4. Query database, populate submitter info, exclude secret verification answer, sort newest first
         const items = await Item.find(filter)
             .populate('submitterId', 'name email profileImage')
+            .select('-secretAnswer')
             .sort({ createdAt: -1 });
 
         // 5. Return items array
@@ -98,14 +100,16 @@ const updateItem = async (req, res, next) => {
         }
 
         // 3. Extract allowed update fields
-        const { title, description, category, location, imageUrl, status } = req.body;
+        const { title, description, category, location, date, imageUrl, contactInformation, status } = req.body;
 
         // 4. Update fields if provided
         if (title !== undefined) item.title = title;
         if (description !== undefined) item.description = description;
         if (category !== undefined) item.category = category;
         if (location !== undefined) item.location = location;
+        if (date !== undefined) item.date = date;
         if (imageUrl !== undefined) item.imageUrl = imageUrl;
+        if (contactInformation !== undefined) item.contactInformation = contactInformation;
         if (status !== undefined) item.status = status;
 
         // 5. Save the updated item
@@ -136,10 +140,13 @@ const deleteItem = async (req, res, next) => {
             throw new Error('Forbidden: You can only delete your own items');
         }
 
-        // 3. Remove the item from database
+        // 3. Delete all claims linked to this item to avoid orphaned records
+        await Claim.deleteMany({ itemId: item._id });
+
+        // 4. Remove the item from database
         await item.deleteOne();
 
-        // 4. Return success status message
+        // 5. Return success status message
         res.status(200).json({ message: 'Item deleted successfully', id: req.params.id });
     } catch (error) {
         next(error);
@@ -174,6 +181,7 @@ const getItemById = async (req, res, next) => {
 const getMyItems = async (req, res, next) => {
     try {
         const items = await Item.find({ submitterId: req.user._id })
+            .select('-secretAnswer')
             .sort({ createdAt: -1 });
 
         res.status(200).json(items);
