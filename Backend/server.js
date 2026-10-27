@@ -1,3 +1,4 @@
+
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -19,44 +20,49 @@ connectDB();
 // Initialize Express app
 const app = express();
 
-// Security Middleware
-app.use(helmet()); // Sets various HTTP security headers
+// Security middleware
+app.use(helmet());
 
-// Body Parsing and Cookie Middleware
-app.use(express.json()); // Parse JSON requests
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173', // Frontend URL
-  credentials: true, // Allow cookies to be sent across domains
-}));
-app.use(cookieParser()); // Parse cookies
+// CORS configuration
+const allowedOrigins = [
+  'https://majestic-empanada-19e10d.netlify.app',
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+].filter(Boolean);
 
-// Basic Health Check Route
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
+// Body parsing and cookie middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ message: 'ARGUS Backend is running' });
+  res.status(200).json({
+    message: 'ARGUS Backend is running',
+  });
 });
 
-// Authentication Routes
+// API routes
 app.use('/api/auth', authRoutes);
-
-// Item Routes
 app.use('/api/items', itemRoutes);
-
-// Claim Routes
 app.use('/api/claims', claimRoutes);
-
-// User & Reputation Routes
 app.use('/api/users', userRoutes);
 
-// 404 handler for undefined routes
+// Error handling
 app.use(notFound);
-
-// Centralized error handling middleware (must be registered after all routes)
 app.use(errorHandler);
 
-// Start the server
+// Start server
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} in ${NODE_ENV} mode`);
 });

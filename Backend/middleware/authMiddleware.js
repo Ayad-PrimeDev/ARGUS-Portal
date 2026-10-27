@@ -1,32 +1,42 @@
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const protect = async (req, res, next) => {
-    let token;
+    const token = req.cookies?.jwt;
 
-    // 1. Read JWT from HTTP-only cookie
-    if (req.cookies && req.cookies.jwt) {
-        token = req.cookies.jwt;
+    if (!token) {
+        return res.status(401).json({
+            message: 'Not authorized, no token',
+        });
     }
 
-    if (token) {
-        try {
-            // 2. Verify token using JWT_SECRET
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-            // 3. Find user from database 
-            // 4. Attach user information to req.user (excluding the password)
-            req.user = await User.findById(decoded.id).select('-password');
-
-            // 5. Continue request
-            next();
-        } catch (error) {
-            res.status(401);
-            next(new Error('Not authorized, token failed'));
+    try {
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET is not configured');
         }
-    } else {
-        res.status(401);
-        next(new Error('Not authorized, no token'));
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await User.findById(decoded.id).select('-password');
+
+        if (!user) {
+            return res.status(401).json({
+                message: 'Not authorized, user not found',
+            });
+        }
+
+        req.user = user;
+        return next();
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError' ||
+            error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                message: 'Not authorized, token failed',
+            });
+        }
+
+        return next(error);
     }
 };
 
