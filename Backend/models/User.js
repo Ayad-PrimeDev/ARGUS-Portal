@@ -26,6 +26,14 @@ const userSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         default: '' // Optional contact phone number
+    },
+    resetPasswordToken: {
+        type: String,
+        default: undefined
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: undefined
     }
 }, {
     // Automatically manages 'createdAt' and 'updatedAt' fields

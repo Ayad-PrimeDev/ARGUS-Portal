@@ -26,8 +26,52 @@ const registerValidation = [
         .isEmail()
         .withMessage('Please provide a valid email'),
     body('password')
-        .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters long'),
+        .isLength({ min: 8 })
+        .withMessage('Password must be at least 8 characters long'),
+    validateRequest
+];
+
+// Validation rules for changing password
+const changePasswordValidation = [
+    body('currentPassword')
+        .notEmpty()
+        .withMessage('Current password is required'),
+    body('newPassword')
+        .isLength({ min: 8 })
+        .withMessage('New password must be at least 8 characters long'),
+    body('confirmPassword')
+        .custom((value, { req }) => {
+            if (value !== req.body.newPassword) {
+                throw new Error('New password and confirmation do not match');
+            }
+            return true;
+        }),
+    validateRequest
+];
+
+// Validation rules for forgot password request
+const forgotPasswordValidation = [
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please provide a valid email'),
+    validateRequest
+];
+
+// Validation rules for resetting password with token
+const resetPasswordValidation = [
+    body('password')
+        .isLength({ min: 8 })
+        .withMessage('Password must be at least 8 characters long'),
+    body('confirmPassword')
+        .custom((value, { req }) => {
+            if (value !== req.body.password) {
+                throw new Error('Passwords do not match');
+            }
+            return true;
+        }),
     validateRequest
 ];
 
@@ -83,6 +127,9 @@ module.exports = {
     validateRequest,
     registerValidation,
     loginValidation,
+    changePasswordValidation,
+    forgotPasswordValidation,
+    resetPasswordValidation,
     createItemValidation,
     createClaimValidation
 };
