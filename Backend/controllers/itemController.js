@@ -49,7 +49,12 @@ const createItem = async (req, res, next) => {
     }
 };
 
-// @desc    Get all active items with optional filters
+// Helper function to safely escape regex special characters
+const escapeRegex = (string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+// @desc    Get all active items with optional advanced filters & sorting
 // @route   GET /api/items
 // @access  Public
 const getItems = async (req, res, next) => {
@@ -58,22 +63,85 @@ const getItems = async (req, res, next) => {
         const filter = { status: 'ACTIVE' };
 
         // 2. Optional filter by type (LOST or FOUND)
-        if (req.query.type) {
-            filter.type = req.query.type;
+        if (req.query.type && ['LOST', 'FOUND'].includes(req.query.type.toUpperCase())) {
+            filter.type = req.query.type.toUpperCase();
         }
 
-        // 3. Optional filter by category
-        if (req.query.category) {
-            filter.category = req.query.category;
+        // 3. Optional filter by category (ignoring empty or 'ALL'/'All')
+        if (req.query.category && req.query.category.trim() && req.query.category.toUpperCase() !== 'ALL') {
+            filter.category = req.query.category.trim();
         }
 
-        // 4. Query database, populate submitter info, exclude secret verification answer, sort newest first
-        const items = await Item.find(filter)
+        // 4. Keyword search across item title or description (case-insensitive partial match)
+        if (req.query.search && req.query.search.trim()) {
+            const searchRegex = new RegExp(escapeRegex(req.query.search.trim()), 'i');
+            filter.$or = [
+                { title: searchRegex },
+                { description: searchRegex }
+            ];
+        }
+
+        // 5. Location filter (case-insensitive partial match)
+        if (req.query.location && req.query.location.trim() && req.query.location.toUpperCase() !== 'ALL') {
+            const locationRegex = new RegExp(escapeRegex(req.query.location.trim()), 'i');
+            filter.location = locationRegex;
+        }
+
+        // 6. Date range filter (inclusive of boundary dates)
+        const startParam = req.query.startDate || req.query.from;
+        const endParam = req.query.endDate || req.query.to;
+        const dateFilter = {};
+
+        if (startParam) {
+            const startDate = new Date(startParam);
+            if (!isNaN(startDate.getTime())) {
+                startDate.setHours(0, 0, 0, 0);
+                dateFilter.$gte = startDate;
+            }
+        }
+
+        if (endParam) {
+            const endDate = new Date(endParam);
+            if (!isNaN(endDate.getTime())) {
+                endDate.setHours(23, 59, 59, 999);
+                dateFilter.$lte = endDate;
+            }
+        }
+
+        if (Object.keys(dateFilter).length > 0) {
+            filter.date = dateFilter;
+        }
+
+        // 7. Sorting options (newest, oldest, name_asc, name_desc)
+        let sortOption = { date: -1, createdAt: -1 };
+        let useCollation = false;
+        const sortParam = req.query.sort;
+
+        if (sortParam === 'oldest') {
+            sortOption = { date: 1, createdAt: 1 };
+        } else if (sortParam === 'name_asc') {
+            sortOption = { title: 1 };
+            useCollation = true;
+        } else if (sortParam === 'name_desc') {
+            sortOption = { title: -1 };
+            useCollation = true;
+        } else {
+            // Default newest first
+            sortOption = { date: -1, createdAt: -1 };
+        }
+
+        // 8. Query database, populate submitter info, exclude secret verification answer
+        let query = Item.find(filter)
             .populate('submitterId', 'name email profileImage')
-            .select('-secretAnswer')
-            .sort({ createdAt: -1 });
+            .select('-secretAnswer');
 
-        // 5. Return items array
+        if (useCollation) {
+            query = query.collation({ locale: 'en', strength: 2 });
+        }
+
+        const items = await query.sort(sortOption);
+
+        // 9. Return items array
         res.status(200).json(items);
     } catch (error) {
         next(error);
