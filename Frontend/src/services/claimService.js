@@ -25,13 +25,24 @@ export const getClaims = async () => {
 };
 
 /**
- * Update the status of a claim (Approve or Reject)
+ * Get a specific claim with complete status timeline history
  * @param {string} claimId - Claim ObjectId
- * @param {string} status - 'APPROVED' | 'REJECTED'
- * @returns {Promise<Object>} - Updated claim response
+ * @returns {Promise<Object>} - Claim details with populated timeline
  */
-export const updateClaimStatus = async (claimId, status) => {
-  const response = await api.put(`/claims/${claimId}`, { status });
+export const getClaimById = async (claimId) => {
+  const response = await api.get(`/claims/${claimId}`);
+  return response.data;
+};
+
+/**
+ * Update the status of a claim (UNDER_REVIEW, APPROVED, REJECTED, RETURNED)
+ * @param {string} claimId - Claim ObjectId
+ * @param {string} status - 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'RETURNED'
+ * @param {string} [note] - Optional transition note or rejection reason
+ * @returns {Promise<Object>} - Updated claim response with new timeline event
+ */
+export const updateClaimStatus = async (claimId, status, note = '') => {
+  const response = await api.put(`/claims/${claimId}`, { status, note });
   return response.data;
 };
 
@@ -47,6 +58,7 @@ export const getMyClaims = async () => {
 export default {
   createClaim,
   getClaims,
+  getClaimById,
   getMyClaims,
   updateClaimStatus,
 };

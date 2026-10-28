@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { formatLongDate } from '../utils/dateUtils';
 import EditItemModal from '../components/EditItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import ClaimTimelineModal from '../components/ClaimTimelineModal';
 
 /**
  * Format date string into human-friendly full display (e.g., "October 7, 2026") using shared utility.
@@ -127,6 +128,7 @@ function ItemDetails() {
   const [claimSubmitting, setClaimSubmitting] = useState(false);
   const [claimError, setClaimError] = useState('');
   const [submittedClaim, setSubmittedClaim] = useState(null);
+  const [showTimelineModal, setShowTimelineModal] = useState(false);
 
   // Fetch single item from backend
   const loadItem = async () => {
@@ -546,11 +548,17 @@ function ItemDetails() {
                       Your ownership claim has been recorded and submitted to the finder for verification.
                       You will be notified once they review your message and answer.
                     </p>
-                    <div className="p-3.5 bg-[#FAF8F5] border border-[#E7E3DA] rounded-lg text-left text-xs mb-6 space-y-1.5">
+                    <div className="p-3.5 bg-[#FAF8F5] border border-[#E7E3DA] rounded-lg text-left text-xs mb-4 space-y-1.5">
+                      <div className="flex justify-between">
+                        <span className="text-[#5C645E]">Claim Reference:</span>
+                        <span className="font-mono font-bold text-[#1B382B]">
+                          #CLM-{submittedClaim._id?.slice(-6).toUpperCase()}
+                        </span>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-[#5C645E]">Status:</span>
-                        <span className="font-semibold text-emerald-700 uppercase tracking-wider">
-                          {submittedClaim.status || 'Pending Review'}
+                        <span className="font-semibold text-blue-700 uppercase tracking-wider">
+                          {submittedClaim.status || 'Submitted'}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -558,11 +566,19 @@ function ItemDetails() {
                         <span className="font-medium text-[#1C201D]">Just now</span>
                       </div>
                     </div>
-                    <Link
-                      to="/items"
-                      className="block w-full py-2.5 px-4 bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-xs font-semibold rounded-lg text-center transition-colors"
+
+                    <button
+                      type="button"
+                      onClick={() => setShowTimelineModal(true)}
+                      className="block w-full py-2.5 px-4 mb-2 bg-[#1B382B] hover:bg-[#142A20] text-[#FBF9F5] text-xs font-semibold rounded-lg text-center transition-colors cursor-pointer shadow-xs"
                     >
-                      Browse Other Listings
+                      Track Claim Timeline →
+                    </button>
+                    <Link
+                      to="/dashboard"
+                      className="block w-full py-2 px-4 border border-[#E7E3DA] bg-[#FBF9F5] hover:bg-white text-[#1C201D] text-xs font-semibold rounded-lg text-center transition-colors"
+                    >
+                      Go to Dashboard
                     </Link>
                   </div>
                 ) : !isActive ? (
@@ -945,6 +961,15 @@ function ItemDetails() {
         deleting={deleting}
         error={deleteError}
       />
+
+      {/* Claim Timeline Modal */}
+      {showTimelineModal && submittedClaim && (
+        <ClaimTimelineModal
+          claim={submittedClaim}
+          onClose={() => setShowTimelineModal(false)}
+          onStatusUpdated={(updated) => setSubmittedClaim(updated)}
+        />
+      )}
     </div>
   );
 }

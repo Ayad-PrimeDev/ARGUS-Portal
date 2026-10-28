@@ -6,6 +6,7 @@ import { getClaims, getMyClaims, updateClaimStatus } from '../services/claimServ
 import { formatShortDate } from '../utils/dateUtils';
 import EditItemModal from '../components/EditItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import ClaimTimelineModal from '../components/ClaimTimelineModal';
 
 /**
  * Dashboard Page Component
@@ -39,6 +40,9 @@ function Dashboard() {
   // Active View Filter Tab: 'overview' | 'lost' | 'found' | 'incoming' | 'my-claims'
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Claim Timeline Modal State (null = closed)
+  const [activeTimelineClaim, setActiveTimelineClaim] = useState(null);
+
   // Claim Action State (approving/rejecting claim)
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
@@ -71,18 +75,21 @@ function Dashboard() {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  // Handle Approve / Reject Incoming Claim
-  const handleClaimStatusUpdate = async (claimId, newStatus) => {
+  // Handle Approve / Reject / Review Incoming Claim
+  const handleClaimStatusUpdate = async (claimId, newStatus, note = '') => {
     setActionLoadingId(claimId);
     setActionMessage(null);
     try {
-      await updateClaimStatus(claimId, newStatus);
+      const updated = await updateClaimStatus(claimId, newStatus, note);
       setActionMessage({
         type: 'success',
-        text: `Claim successfully marked as ${newStatus.toLowerCase()}.`,
+        text: `Claim successfully moved to ${newStatus.replace('_', ' ').toLowerCase()}.`,
       });
       // Refresh dashboard data to sync item status and claim lists
       await loadDashboardData();
+      if (activeTimelineClaim && activeTimelineClaim._id === claimId) {
+        setActiveTimelineClaim(updated);
+      }
     } catch (err) {
       console.error('Error updating claim status:', err);
       setActionMessage({
@@ -133,7 +140,9 @@ function Dashboard() {
   const foundItems = items.filter((item) => item.type === 'FOUND');
   const activeReportsCount = items.filter((item) => item.status === 'ACTIVE').length;
   const resolvedItemsCount = items.filter((item) => item.status === 'CLAIMED').length;
-  const pendingIncomingCount = incomingClaims.filter((c) => c.status === 'PENDING').length;
+  const pendingIncomingCount = incomingClaims.filter(
+    (c) => c.status === 'PENDING' || c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW'
+  ).length;
 
   // Date formatting helper using shared utility
   const formatDate = formatShortDate;
@@ -141,6 +150,19 @@ function Dashboard() {
   // Status Badge Helper
   const renderStatusBadge = (status) => {
     switch (status) {
+      case 'RETURNED':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+            <svg className="w-3 h-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Returned & Recovered
+          </span>
+        );
       case 'CLAIMED':
       case 'APPROVED':
         return (
@@ -152,24 +174,47 @@ function Dashboard() {
                 clipRule="evenodd"
               />
             </svg>
-            {status === 'CLAIMED' ? 'Returned' : 'Approved'}
+            {status === 'CLAIMED' ? 'Resolved' : 'Approved (Awaiting Handover)'}
           </span>
         );
+      case 'UNDER_REVIEW':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-800 border border-purple-200">
+            <svg className="w-3 h-3 mr-1 animate-pulse text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" strokeWidth="2" />
+              <path strokeWidth="2" d="M12 7v5l3 3" />
+            </svg>
+            Under Review
+          </span>
+        );
+      case 'SUBMITTED':
       case 'PENDING':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-            <svg className="w-3 h-3 mr-1 animate-spin text-amber-600" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <svg className="w-3 h-3 mr-1 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="4" />
             </svg>
-            Pending Review
+            Submitted
           </span>
         );
       case 'REJECTED':
+      case 'DECLINED':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+            <svg className="w-3 h-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Declined
+          </span>
+        );
       case 'CLOSED':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-            {status === 'REJECTED' ? 'Rejected' : 'Closed'}
+            Closed
           </span>
         );
       case 'ACTIVE':
@@ -862,34 +907,46 @@ function Dashboard() {
                   <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                     {/* Item and Claimant Info */}
                     <div className="space-y-3 flex-1">
-                      <div className="flex items-center justify-between sm:justify-start gap-3">
+                      <div className="flex flex-wrap items-center justify-between sm:justify-start gap-3">
+                        <span className="font-mono text-xs font-bold text-[#1B382B] bg-[#1B382B]/5 px-2 py-0.5 rounded border border-[#1B382B]/10">
+                          #CLM-{claim._id.slice(-6).toUpperCase()}
+                        </span>
                         {renderStatusBadge(claim.status)}
                         <span className="text-xs text-[#8A928D]">
                           Submitted {formatDate(claim.createdAt)}
                         </span>
                       </div>
 
-                      {/* Associated Item Link */}
+                      {/* Associated Item */}
                       {claim.itemId ? (
-                        <div>
-                          <span className="text-[11px] font-semibold uppercase text-[#5C645E]">
-                            Target Item:
-                          </span>
-                          <Link
-                            to={`/items/${claim.itemId._id}`}
-                            className="text-base font-bold text-[#1C201D] hover:text-[#1B382B] block hover:underline transition-colors mt-0.5"
-                          >
-                            {claim.itemId.title}
-                          </Link>
-                          <p className="text-xs text-[#5C645E]">
-                            Location: {claim.itemId.location} · Status: {claim.itemId.status}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          {claim.itemId.imageUrl && (
+                            <img
+                              src={claim.itemId.imageUrl}
+                              alt={claim.itemId.title}
+                              className="w-12 h-12 object-cover rounded-lg border border-[#E7E3DA] shrink-0"
+                            />
+                          )}
+                          <div>
+                            <span className="text-[11px] font-semibold uppercase text-[#5C645E]">
+                              Target Item:
+                            </span>
+                            <Link
+                              to={`/items/${claim.itemId._id}`}
+                              className="text-base font-bold text-[#1C201D] hover:text-[#1B382B] block hover:underline transition-colors mt-0.5"
+                            >
+                              {claim.itemId.title}
+                            </Link>
+                            <p className="text-xs text-[#5C645E]">
+                              Location: {claim.itemId.location} · Status: {claim.itemId.status}
+                            </p>
+                          </div>
                         </div>
                       ) : (
                         <p className="text-xs text-[#8A928D] italic">Associated item was deleted</p>
                       )}
 
-                      {/* Claimant Identity */}
+                      {/* Claimant Identity & Message */}
                       <div className="p-3 bg-white rounded-lg border border-[#E7E3DA] text-xs space-y-1.5">
                         <div className="flex items-center gap-2">
                           <span className="text-[#5C645E] font-medium">Claimant:</span>
@@ -917,31 +974,65 @@ function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Claim Decision Actions */}
+                    {/* Claim Decision & Timeline Actions */}
                     <div className="flex flex-col sm:flex-row lg:flex-col gap-2 shrink-0 self-end lg:self-center">
-                      {claim.status === 'PENDING' ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveTimelineClaim(claim)}
+                        className="px-3.5 py-2 bg-white border border-[#1B382B] text-[#1B382B] text-xs font-semibold rounded-lg hover:bg-[#1B382B]/5 transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Track Timeline
+                      </button>
+
+                      {/* Status quick triggers */}
+                      {(claim.status === 'PENDING' || claim.status === 'SUBMITTED') && (
                         <>
                           <button
                             type="button"
                             disabled={actionLoadingId === claim._id}
-                            onClick={() => handleClaimStatusUpdate(claim._id, 'APPROVED')}
-                            className="px-4 py-2 bg-[#1B382B] text-white text-xs font-semibold rounded-lg hover:bg-[#142A20] disabled:opacity-50 transition-colors cursor-pointer shadow-xs"
+                            onClick={() => handleClaimStatusUpdate(claim._id, 'UNDER_REVIEW', 'Authorized reviewer is examining ownership verification details.')}
+                            className="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
                           >
-                            {actionLoadingId === claim._id ? 'Processing...' : 'Approve Claim'}
+                            Start Review
                           </button>
                           <button
                             type="button"
                             disabled={actionLoadingId === claim._id}
-                            onClick={() => handleClaimStatusUpdate(claim._id, 'REJECTED')}
-                            className="px-4 py-2 bg-white border border-[#DCD7CD] text-[#C05634] text-xs font-semibold rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors cursor-pointer"
+                            onClick={() => handleClaimStatusUpdate(claim._id, 'APPROVED', 'Ownership verification confirmed. Ready for item handover.')}
+                            className="px-3.5 py-1.5 bg-[#1B382B] text-white text-xs font-semibold rounded-lg hover:bg-[#142A20] disabled:opacity-50 transition-colors cursor-pointer shadow-xs"
                           >
-                            Reject
+                            {actionLoadingId === claim._id ? 'Processing...' : 'Approve Claim'}
                           </button>
                         </>
-                      ) : (
-                        <div className="text-right text-xs text-[#8A928D] italic">
-                          Claim resolved
-                        </div>
+                      )}
+
+                      {claim.status === 'UNDER_REVIEW' && (
+                        <button
+                          type="button"
+                          disabled={actionLoadingId === claim._id}
+                          onClick={() => handleClaimStatusUpdate(claim._id, 'APPROVED', 'Verification review completed successfully. Item approved for handover.')}
+                          className="px-3.5 py-1.5 bg-[#1B382B] text-white text-xs font-semibold rounded-lg hover:bg-[#142A20] disabled:opacity-50 transition-colors cursor-pointer shadow-xs"
+                        >
+                          {actionLoadingId === claim._id ? 'Processing...' : 'Approve Claim'}
+                        </button>
+                      )}
+
+                      {claim.status === 'APPROVED' && (
+                        <button
+                          type="button"
+                          disabled={actionLoadingId === claim._id}
+                          onClick={() => handleClaimStatusUpdate(claim._id, 'RETURNED', 'Physical item handover successfully completed to the verified owner.')}
+                          className="px-3.5 py-1.5 bg-emerald-700 text-white text-xs font-semibold rounded-lg hover:bg-emerald-800 disabled:opacity-50 transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-1"
+                        >
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Record Handover (Returned)
+                        </button>
                       )}
                     </div>
                   </div>
@@ -986,52 +1077,173 @@ function Dashboard() {
 
           {myClaims.length > 0 ? (
             <div className="space-y-4">
-              {myClaims.map((claim) => (
-                <div
-                  key={claim._id}
-                  className="border border-[#E7E3DA] hover:border-[#1B382B]/30 rounded-xl p-5 bg-[#FAF8F5]/60 hover:bg-[#FAF8F5] transition-all"
-                >
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-3">
-                        {renderStatusBadge(claim.status)}
-                        <span className="text-xs text-[#8A928D]">
-                          Filed {formatDate(claim.createdAt)}
-                        </span>
+              {myClaims.map((claim) => {
+                const normStatus = claim.status === 'PENDING' ? 'SUBMITTED' : claim.status;
+                const isRejected = normStatus === 'REJECTED';
+                const isApproved = normStatus === 'APPROVED';
+                const isReturned = normStatus === 'RETURNED';
+                const isUnderReview = normStatus === 'UNDER_REVIEW';
+
+                return (
+                  <div
+                    key={claim._id}
+                    className="border border-[#E7E3DA] hover:border-[#1B382B]/30 rounded-xl p-5 bg-[#FAF8F5]/60 hover:bg-[#FAF8F5] transition-all space-y-4"
+                  >
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="space-y-2 flex-1">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="font-mono text-xs font-bold text-[#1B382B] bg-[#1B382B]/5 px-2 py-0.5 rounded border border-[#1B382B]/10">
+                            #CLM-{claim._id.slice(-6).toUpperCase()}
+                          </span>
+                          {renderStatusBadge(claim.status)}
+                          <span className="text-xs text-[#8A928D]">
+                            Filed {formatDate(claim.createdAt)}
+                          </span>
+                        </div>
+
+                        {claim.itemId ? (
+                          <div className="flex items-center gap-3 pt-1">
+                            {claim.itemId.imageUrl && (
+                              <img
+                                src={claim.itemId.imageUrl}
+                                alt={claim.itemId.title}
+                                className="w-12 h-12 object-cover rounded-lg border border-[#E7E3DA] shrink-0"
+                              />
+                            )}
+                            <div>
+                              <Link
+                                to={`/items/${claim.itemId._id}`}
+                                className="text-base font-bold text-[#1C201D] hover:text-[#1B382B] hover:underline transition-colors block"
+                              >
+                                {claim.itemId.title}
+                              </Link>
+                              <p className="text-xs text-[#5C645E]">
+                                Found in: {claim.itemId.location} · Category: {claim.itemId.category}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-[#8A928D] italic">Item record was removed</p>
+                        )}
                       </div>
 
-                      {claim.itemId ? (
-                        <div>
-                          <Link
-                            to={`/items/${claim.itemId._id}`}
-                            className="text-base font-bold text-[#1C201D] hover:text-[#1B382B] hover:underline transition-colors block"
-                          >
-                            {claim.itemId.title}
-                          </Link>
-                          <p className="text-xs text-[#5C645E]">
-                            Found in: {claim.itemId.location} · Category: {claim.itemId.category}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-[#8A928D] italic">Item record was removed</p>
-                      )}
-
-                      <div className="p-2.5 bg-white rounded-lg border border-[#E7E3DA] text-xs text-[#5C645E]">
-                        <span className="font-medium text-[#1C201D]">Your Message:</span> “{claim.message}”
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <button
+                          type="button"
+                          onClick={() => setActiveTimelineClaim(claim)}
+                          className="px-3.5 py-2 bg-[#1B382B] text-white text-xs font-semibold rounded-lg hover:bg-[#142A20] transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                          Track Timeline →
+                        </button>
                       </div>
                     </div>
 
-                    {claim.itemId && (
-                      <Link
-                        to={`/items/${claim.itemId._id}`}
-                        className="px-4 py-2 border border-[#DCD7CD] hover:border-[#1B382B] text-xs font-semibold rounded-lg text-[#1C201D] bg-white hover:bg-[#F4F1EA] transition-colors cursor-pointer shrink-0"
-                      >
-                        Inspect Item →
-                      </Link>
+                    {/* Step Progress Tracker Bar */}
+                    <div className="bg-white rounded-lg p-3 border border-[#E7E3DA]/80">
+                      <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                        {/* Step 1: Submitted */}
+                        <div className="flex flex-col items-center">
+                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-emerald-100 text-emerald-800 mb-1">
+                            ✓
+                          </span>
+                          <span className="font-semibold text-[#1C201D] text-[11px]">Submitted</span>
+                        </div>
+
+                        {/* Step 2: Under Review */}
+                        <div className="flex flex-col items-center">
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 ${
+                            isUnderReview
+                              ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400'
+                              : isApproved || isReturned || isRejected
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-gray-100 text-gray-400'
+                          }`}>
+                            {isApproved || isReturned || isRejected ? '✓' : '2'}
+                          </span>
+                          <span className="font-semibold text-[#1C201D] text-[11px]">Under Review</span>
+                        </div>
+
+                        {/* Step 3: Decision */}
+                        <div className="flex flex-col items-center">
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 ${
+                            isRejected
+                              ? 'bg-rose-100 text-rose-700'
+                              : isApproved || isReturned
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-gray-100 text-gray-400'
+                          }`}>
+                            {isRejected ? '✕' : isApproved || isReturned ? '✓' : '3'}
+                          </span>
+                          <span className="font-semibold text-[#1C201D] text-[11px]">
+                            {isRejected ? 'Declined' : 'Approved'}
+                          </span>
+                        </div>
+
+                        {/* Step 4: Returned */}
+                        <div className="flex flex-col items-center">
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 ${
+                            isReturned
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-gray-100 text-gray-400'
+                          }`}>
+                            {isReturned ? '✓' : '4'}
+                          </span>
+                          <span className="font-semibold text-[#1C201D] text-[11px]">Returned</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Context Notice / Banners */}
+                    {isApproved && (
+                      <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-start gap-2">
+                        <svg className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="font-bold">Claim Approved — Awaiting Handover</p>
+                          <p className="mt-0.5 text-emerald-800">
+                            Your claim has been accepted! Please coordinate with the finder or campus administrator to complete the physical handover of your item. Once handed over, the claim will be marked Returned.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {isReturned && (
+                      <div className="p-3 bg-emerald-100/60 border border-emerald-300 rounded-lg text-xs text-emerald-950 flex items-start gap-2">
+                        <svg className="w-4 h-4 text-emerald-800 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="font-bold">Recovery Complete — Item Returned</p>
+                          <p className="mt-0.5 text-emerald-900">
+                            The physical handover of your property was recorded and successfully verified. Thank you for using ARGUS Portal!
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {isRejected && (
+                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-900 flex items-start gap-2">
+                        <svg className="w-4 h-4 text-rose-700 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="font-bold">Claim Declined</p>
+                          <p className="mt-0.5 text-rose-800">
+                            {claim.rejectionReason
+                              ? `Reason: “${claim.rejectionReason}”`
+                              : "The provided verification information did not match the finder's records."}
+                          </p>
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="py-16 text-center">
@@ -1082,6 +1294,18 @@ function Dashboard() {
         deleting={deletingItem}
         error={deleteModalError}
       />
+
+      {/* Claim Timeline Tracking Modal */}
+      {activeTimelineClaim && (
+        <ClaimTimelineModal
+          claim={activeTimelineClaim}
+          onClose={() => setActiveTimelineClaim(null)}
+          onStatusUpdated={(updated) => {
+            loadDashboardData();
+            setActiveTimelineClaim(updated);
+          }}
+        />
+      )}
     </main>
   );
 }

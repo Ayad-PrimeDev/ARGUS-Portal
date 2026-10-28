@@ -76,12 +76,37 @@ export function getTodayDateString() {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Format a date string into human-readable date and time (e.g. "Oct 28, 2026, 11:15 AM").
+ * @param {string|Date} dateString - ISO string or Date object
+ * @param {string} [fallback='Date not specified'] - Default text if date is missing or invalid
+ * @returns {string} Formatted date and time string
+ */
+export function formatDateTime(dateString, fallback = 'Date not specified') {
+  if (!dateString) return fallback;
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return fallback;
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    return dateString || fallback;
+  }
+}
+
 // Default export alias for general display formatting
 export const formatDate = formatShortDate;
 
 export default {
   formatShortDate,
   formatLongDate,
+  formatDateTime,
   formatDate,
   toDateInputValue,
   getTodayDateString,

@@ -1,5 +1,29 @@
 const mongoose = require('mongoose');
 
+// Schema for tracking individual status transition history events
+const claimHistorySchema = new mongoose.Schema(
+    {
+        status: {
+            type: String,
+            required: true,
+            enum: ['SUBMITTED', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'RETURNED']
+        },
+        changedAt: {
+            type: Date,
+            default: Date.now
+        },
+        changedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        note: {
+            type: String,
+            default: ''
+        }
+    },
+    { _id: true }
+);
+
 // Define the Claim Schema for item ownership requests
 const claimSchema = new mongoose.Schema(
     {
@@ -23,9 +47,14 @@ const claimSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['PENDING', 'APPROVED', 'REJECTED'], // Allowed claim statuses
-            default: 'PENDING'
-        }
+            enum: ['SUBMITTED', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'RETURNED'],
+            default: 'SUBMITTED'
+        },
+        rejectionReason: {
+            type: String,
+            default: ''
+        },
+        timeline: [claimHistorySchema]
     },
     {
         // Automatically manages 'createdAt' and 'updatedAt' timestamps

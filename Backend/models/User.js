@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpires: {
         type: Date,
         default: undefined
+    },
+    role: {
+        type: String,
+        enum: ['USER', 'ADMIN'],
+        default: 'USER'
     }
 }, {
     // Automatically manages 'createdAt' and 'updatedAt' fields

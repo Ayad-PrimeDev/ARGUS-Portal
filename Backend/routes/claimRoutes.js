@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { createClaim, getClaims, getMyClaims, updateClaimStatus } = require('../controllers/claimController');
+const {
+    createClaim,
+    getClaims,
+    getClaimById,
+    getMyClaims,
+    updateClaimStatus
+} = require('../controllers/claimController');
 const { protect } = require('../middleware/authMiddleware');
 const { createClaimValidation } = require('../middleware/validateMiddleware');
 
@@ -14,14 +20,19 @@ router.get('/', protect, getClaims);
 // Protected route - requires authentication
 router.get('/my', protect, getMyClaims);
 
+// Define route to view a specific claim with full timeline history
+// GET /api/claims/:id
+// Protected route - requires authentication
+router.get('/:id', protect, getClaimById);
+
 // Define route to submit a claim for an item
 // POST /api/claims
 // Protected route - requires authentication
 router.post('/', protect, createClaimValidation, createClaim);
 
-// Define route to approve or reject a claim
+// Define route to update claim workflow status (UNDER_REVIEW, APPROVED, REJECTED, RETURNED)
 // PUT /api/claims/:id
-// Protected route - only item owner can approve or reject
+// Protected route - item submitter or admin only
 router.put('/:id', protect, updateClaimStatus);
 
 module.exports = router;
