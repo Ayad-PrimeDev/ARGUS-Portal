@@ -1,12 +1,12 @@
 const Item = require('../models/Item');
 const Claim = require('../models/Claim');
+const { escapeRegex } = require('../utils/helpers');
 
 // @desc    Create a new lost or found item
 // @route   POST /api/items
 // @access  Private (Requires authentication)
 const createItem = async (req, res, next) => {
     try {
-        // 1. Receive data from request body
         const {
             title,
             description,
@@ -20,13 +20,11 @@ const createItem = async (req, res, next) => {
             secretAnswer
         } = req.body;
 
-        // 2. Validate required fields
         if (!title || !description || !category || !type || !location || !date || !contactInformation) {
             res.status(400);
             throw new Error('Please fill in all required fields: title, description, category, type, location, date, and contactInformation');
         }
 
-        // 3. Create Item document in MongoDB
         const item = await Item.create({
             title,
             description,
@@ -38,20 +36,14 @@ const createItem = async (req, res, next) => {
             contactInformation,
             secretQuestion: secretQuestion || '',
             secretAnswer: secretAnswer || '',
-            submitterId: req.user._id, // Automatically assign logged-in user ID
-            status: 'ACTIVE'           // Default status
+            submitterId: req.user._id,
+            status: 'ACTIVE'
         });
 
-        // 4. Return the created item
         res.status(201).json(item);
     } catch (error) {
-        next(error); // Pass error to global error handler
+        next(error);
     }
-};
-
-// Helper function to safely escape regex special characters
-const escapeRegex = (string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
 // @desc    Get all active items with optional advanced filters & sorting
@@ -59,20 +51,16 @@ const escapeRegex = (string) => {
 // @access  Public
 const getItems = async (req, res, next) => {
     try {
-        // 1. Base filter: only return ACTIVE items
-        const filter = { status: 'ACTIVE' };
+        const filter = { status: 'ACTIVE', isHidden: { $ne: true } };
 
-        // 2. Optional filter by type (LOST or FOUND)
         if (req.query.type && ['LOST', 'FOUND'].includes(req.query.type.toUpperCase())) {
             filter.type = req.query.type.toUpperCase();
         }
 
-        // 3. Optional filter by category (ignoring empty or 'ALL'/'All')
         if (req.query.category && req.query.category.trim() && req.query.category.toUpperCase() !== 'ALL') {
             filter.category = req.query.category.trim();
         }
 
-        // 4. Keyword search across item title or description (case-insensitive partial match)
         if (req.query.search && req.query.search.trim()) {
             const searchRegex = new RegExp(escapeRegex(req.query.search.trim()), 'i');
             filter.$or = [
@@ -81,13 +69,11 @@ const getItems = async (req, res, next) => {
             ];
         }
 
-        // 5. Location filter (case-insensitive partial match)
         if (req.query.location && req.query.location.trim() && req.query.location.toUpperCase() !== 'ALL') {
             const locationRegex = new RegExp(escapeRegex(req.query.location.trim()), 'i');
             filter.location = locationRegex;
         }
 
-        // 6. Date range filter (inclusive of boundary dates)
         const startParam = req.query.startDate || req.query.from;
         const endParam = req.query.endDate || req.query.to;
         const dateFilter = {};
@@ -112,7 +98,6 @@ const getItems = async (req, res, next) => {
             filter.date = dateFilter;
         }
 
-        // 7. Sorting options (newest, oldest, name_asc, name_desc)
         let sortOption = { date: -1, createdAt: -1 };
         let useCollation = false;
         const sortParam = req.query.sort;
@@ -126,11 +111,9 @@ const getItems = async (req, res, next) => {
             sortOption = { title: -1 };
             useCollation = true;
         } else {
-            // Default newest first
             sortOption = { date: -1, createdAt: -1 };
         }
 
-        // 8. Query database, populate submitter info, exclude secret verification answer
         let query = Item.find(filter)
             .populate('submitterId', 'name email profileImage')
             .select('-secretAnswer');
@@ -141,7 +124,6 @@ const getItems = async (req, res, next) => {
 
         const items = await query.sort(sortOption);
 
-        // 9. Return items array
         res.status(200).json(items);
     } catch (error) {
         next(error);
@@ -155,22 +137,18 @@ const updateItem = async (req, res, next) => {
     try {
         const item = await Item.findById(req.params.id);
 
-        // 1. Check if item exists
         if (!item) {
             res.status(404);
             throw new Error('Item not found');
         }
 
-        // 2. Check if logged-in user is the owner of the item
         if (item.submitterId.toString() !== req.user._id.toString()) {
             res.status(403);
             throw new Error('Forbidden: You can only update your own items');
         }
 
-        // 3. Extract allowed update fields
         const { title, description, category, location, date, imageUrl, contactInformation, status } = req.body;
 
-        // 4. Update fields if provided
         if (title !== undefined) item.title = title;
         if (description !== undefined) item.description = description;
         if (category !== undefined) item.category = category;
@@ -180,7 +158,6 @@ const updateItem = async (req, res, next) => {
         if (contactInformation !== undefined) item.contactInformation = contactInformation;
         if (status !== undefined) item.status = status;
 
-        // 5. Save the updated item
         const updatedItem = await item.save();
 
         res.status(200).json(updatedItem);
@@ -196,25 +173,21 @@ const deleteItem = async (req, res, next) => {
     try {
         const item = await Item.findById(req.params.id);
 
-        // 1. Check if item exists
         if (!item) {
             res.status(404);
             throw new Error('Item not found');
         }
 
-        // 2. Check if logged-in user is the owner of the item
         if (item.submitterId.toString() !== req.user._id.toString()) {
             res.status(403);
             throw new Error('Forbidden: You can only delete your own items');
         }
 
-        // 3. Delete all claims linked to this item to avoid orphaned records
+        // Delete all claims linked to this item to avoid orphaned records
         await Claim.deleteMany({ itemId: item._id });
 
-        // 4. Remove the item from database
         await item.deleteOne();
 
-        // 5. Return success status message
         res.status(200).json({ message: 'Item deleted successfully', id: req.params.id });
     } catch (error) {
         next(error);
@@ -230,13 +203,11 @@ const getItemById = async (req, res, next) => {
             .populate('submitterId', 'name email profileImage')
             .select('-secretAnswer'); // Protect secret answer from public view
 
-        // 1. Check if item exists
         if (!item) {
             res.status(404);
             throw new Error('Item not found');
         }
 
-        // 2. Return item
         res.status(200).json(item);
     } catch (error) {
         next(error);
@@ -258,13 +229,66 @@ const getMyItems = async (req, res, next) => {
     }
 };
 
+// @desc    Report / flag an item for moderator review
+// @route   POST /api/items/:id/flag
+// @access  Private (Authenticated)
+const flagItem = async (req, res, next) => {
+    try {
+        const { reason, details } = req.body;
+
+        if (!reason || !reason.trim()) {
+            res.status(400);
+            throw new Error('Please provide a reason for flagging this report');
+        }
+
+        const item = await Item.findById(req.params.id);
+        if (!item) {
+            res.status(404);
+            throw new Error('Item not found');
+        }
+
+        // Check if user already flagged this item recently
+        const alreadyFlagged = item.flags && item.flags.some(
+            (f) => f.reportedBy && f.reportedBy.toString() === req.user._id.toString()
+        );
+
+        if (alreadyFlagged) {
+            res.status(400);
+            throw new Error('You have already submitted a flag report for this item. Our moderation team is reviewing it.');
+        }
+
+        item.flags = item.flags || [];
+        item.flags.push({
+            reportedBy: req.user._id,
+            reason: reason.trim(),
+            details: details ? details.trim() : '',
+            createdAt: new Date()
+        });
+
+        item.isFlagged = true;
+        if (item.moderationStatus !== 'REMOVED') {
+            item.moderationStatus = 'FLAGGED';
+        }
+
+        await item.save();
+
+        res.status(200).json({
+            message: 'Report submitted for review. Thank you for helping keep the campus community safe.',
+            isFlagged: true
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createItem,
     getItems,
     getItemById,
     getMyItems,
     updateItem,
-    deleteItem
+    deleteItem,
+    flagItem
 };
 
 

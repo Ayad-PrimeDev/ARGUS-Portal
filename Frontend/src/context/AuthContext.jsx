@@ -1,15 +1,14 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, registerUser, logoutUser } from '../services/authService';
+import { getUserProfile } from '../services/userService';
 
-// 1. Create the Authentication Context
 export const AuthContext = createContext(null);
 
 /**
  * AuthProvider component that wraps the application.
- * It manages global user state and provides authentication actions (login, register, logout).
+ * Manages global user state, role synchronization with backend, and authentication actions.
  */
 export const AuthProvider = ({ children }) => {
-  // State 1: Current authenticated user (initialized from localStorage if previously logged in)
   const [user, setUser] = useState(() => {
     try {
       const storedUser = localStorage.getItem('user');
@@ -20,11 +19,59 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  // State 2: Loading state for authentication processes
   const [loading, setLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
 
-  // State 3: Derived authentication status
-  const isAuthenticated = Boolean(user);
+  // Synchronize authenticated user role and status directly from backend database on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    const verifySession = async () => {
+      try {
+        const profileData = await getUserProfile();
+        if (isMounted && profileData?.user) {
+          const verifiedUser = {
+            _id: profileData.user._id,
+            name: profileData.user.name,
+            email: profileData.user.email,
+            role: profileData.user.role || 'USER',
+            isSuspended: !!profileData.user.isSuspended,
+            profileImage: profileData.user.profileImage || '',
+            phoneNumber: profileData.user.phoneNumber || '',
+            createdAt: profileData.user.createdAt
+          };
+
+          if (verifiedUser.isSuspended) {
+            setUser(null);
+            localStorage.removeItem('user');
+          } else {
+            setUser(verifiedUser);
+            localStorage.setItem('user', JSON.stringify(verifiedUser));
+          }
+        }
+      } catch (err) {
+        // If cookie expired or unauthorized, clear stale local session
+        if (isMounted) {
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            setUser(null);
+            localStorage.removeItem('user');
+          }
+        }
+      } finally {
+        if (isMounted) {
+          setIsVerifying(false);
+        }
+      }
+    };
+
+    verifySession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const isAuthenticated = Boolean(user && !user.isSuspended);
 
   /**
    * Log in user
@@ -34,9 +81,17 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const data = await loginUser(userData);
-      setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
-      return { success: true, data };
+      const verifiedUser = {
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        role: data.role || 'USER',
+        isSuspended: !!data.isSuspended,
+        createdAt: data.createdAt,
+      };
+      setUser(verifiedUser);
+      localStorage.setItem('user', JSON.stringify(verifiedUser));
+      return { success: true, data: verifiedUser };
     } catch (error) {
       const message = error.response?.data?.message || error.message || 'Login failed';
       throw new Error(message);
@@ -90,11 +145,11 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // Values exposed to any component consuming this context
   const contextValue = {
     user,
     isAuthenticated,
     loading,
+    isVerifying,
     login,
     register,
     logout,

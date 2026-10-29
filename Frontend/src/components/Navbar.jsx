@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-/**
- * Navbar Component
- * Minimalist, premium navigation bar with active state indicators and responsive mobile navigation.
- */
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -35,19 +31,17 @@ function Navbar() {
     <nav className="bg-[#FBF9F5]/95 backdrop-blur-md border-b border-[#E7E3DA] sticky top-0 z-50 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Identity */}
           <div className="flex items-center space-x-8">
             <Link
               to="/"
               className="flex items-center space-x-2.5 text-xl font-bold tracking-tight text-[#1B382B] hover:text-[#142A20] transition-colors"
             >
-              <span className="font-serif tracking-tight text-2xl font-black">ARGUS</span>
+              <span className="tracking-tight text-2xl font-bold">ARGUS</span>
               <span className="hidden sm:inline-block text-[11px] font-medium tracking-wide text-[#5C645E] border-l border-[#DCD7CD] pl-2.5">
                 Lost &amp; Found
               </span>
             </Link>
 
-            {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center space-x-1">
               <Link
                 to="/"
@@ -82,7 +76,6 @@ function Navbar() {
             </div>
           </div>
 
-          {/* User / Auth Controls (Desktop) */}
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
@@ -90,6 +83,18 @@ function Navbar() {
                   <span className="hidden lg:inline-block text-xs text-[#5C645E]">
                     Signed in as <span className="font-semibold text-[#1C201D]">{user.name}</span>
                   </span>
+                )}
+
+                {user?.role === 'ADMIN' && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold bg-[#1B382B] text-[#FBF9F5] hover:bg-[#142A20] shadow-xs transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span>Admin Portal</span>
+                  </Link>
                 )}
 
                 <Link
@@ -141,7 +146,6 @@ function Navbar() {
             )}
           </div>
 
-          {/* Mobile Hamburger Button */}
           <div className="flex md:hidden items-center space-x-2">
             <button
               type="button"
@@ -178,7 +182,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-[#E7E3DA] bg-[#FBF9F5] px-4 pt-2 pb-5 space-y-2 animate-in fade-in duration-150">
           <Link
@@ -215,6 +218,17 @@ function Navbar() {
           <div className="pt-3 border-t border-[#E7E3DA] space-y-2">
             {isAuthenticated ? (
               <>
+                {user?.role === 'ADMIN' && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold bg-[#1B382B] text-[#FBF9F5]"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span>Admin Portal</span>
+                  </Link>
+                )}
                 <Link
                   to="/dashboard"
                   className="block px-3 py-2 rounded-md text-sm font-medium text-[#1C201D] hover:bg-[#F4F1EA]"

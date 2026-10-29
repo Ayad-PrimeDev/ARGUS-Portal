@@ -3,16 +3,6 @@ import { updateItem } from '../services/itemService';
 import { ITEM_CATEGORIES } from '../constants/categories';
 import { toDateInputValue } from '../utils/dateUtils';
 
-/**
- * EditItemModal Component
- * Reusable modal dialog for editing an existing Lost or Found item report.
- * Used by both ItemDetails and Dashboard pages.
- *
- * @param {Object} props
- * @param {Object} props.item - The item record to edit
- * @param {Function} props.onClose - Callback triggered when modal is dismissed
- * @param {Function} props.onSaved - Callback triggered after item is successfully updated
- */
 function EditItemModal({ item, onClose, onSaved }) {
   if (!item) return null;
 
@@ -134,10 +124,9 @@ function EditItemModal({ item, onClose, onSaved }) {
       aria-labelledby="edit-modal-title"
     >
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-[#E7E3DA] flex flex-col max-h-[90vh] overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E7E3DA] shrink-0">
           <div>
-            <h2 id="edit-modal-title" className="font-display text-lg font-bold text-[#1B382B]">
+            <h2 id="edit-modal-title" className="text-lg font-bold text-[#1B382B]">
               Edit {isLost ? 'Lost' : 'Found'} Report
             </h2>
             <p className="text-xs text-[#5C645E] mt-0.5">Update the details of your item report.</p>
@@ -157,7 +146,6 @@ function EditItemModal({ item, onClose, onSaved }) {
           </button>
         </div>
 
-        {/* Scrollable Form Body */}
         <div className="overflow-y-auto flex-1 px-6 py-5">
           {successMsg && (
             <div className="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
@@ -180,7 +168,6 @@ function EditItemModal({ item, onClose, onSaved }) {
           )}
 
           <form id="edit-item-form" onSubmit={handleSubmit} noValidate className="space-y-4">
-            {/* Title */}
             <div>
               <label htmlFor="edit-title" className="block text-xs font-semibold text-[#1C201D] mb-1">
                 Item Title <span className="text-[#C05634]">*</span>
@@ -197,7 +184,6 @@ function EditItemModal({ item, onClose, onSaved }) {
               {errors.title && <p className="mt-1 text-xs text-red-600">{errors.title}</p>}
             </div>
 
-            {/* Category */}
             <div>
               <label htmlFor="edit-category" className="block text-xs font-semibold text-[#1C201D] mb-1">
                 Category <span className="text-[#C05634]">*</span>
@@ -220,7 +206,6 @@ function EditItemModal({ item, onClose, onSaved }) {
               {errors.category && <p className="mt-1 text-xs text-red-600">{errors.category}</p>}
             </div>
 
-            {/* Location & Date */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="edit-location" className="block text-xs font-semibold text-[#1C201D] mb-1">
@@ -255,7 +240,6 @@ function EditItemModal({ item, onClose, onSaved }) {
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <label htmlFor="edit-description" className="block text-xs font-semibold text-[#1C201D] mb-1">
                 Description <span className="text-[#C05634]">*</span>
@@ -272,7 +256,6 @@ function EditItemModal({ item, onClose, onSaved }) {
               {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description}</p>}
             </div>
 
-            {/* Contact Information */}
             <div>
               <label htmlFor="edit-contact" className="block text-xs font-semibold text-[#1C201D] mb-1">
                 Contact Information <span className="text-[#C05634]">*</span>
@@ -291,7 +274,6 @@ function EditItemModal({ item, onClose, onSaved }) {
               )}
             </div>
 
-            {/* Image URL (Optional) */}
             <div>
               <label htmlFor="edit-imageUrl" className="block text-xs font-semibold text-[#1C201D] mb-1">
                 Image URL <span className="text-[#5C645E] font-normal text-[11px]">(Optional)</span>
@@ -310,7 +292,6 @@ function EditItemModal({ item, onClose, onSaved }) {
           </form>
         </div>
 
-        {/* Footer Actions */}
         <div className="px-6 py-4 border-t border-[#E7E3DA] flex items-center justify-end gap-3 shrink-0 bg-[#FAFAF8]">
           <button
             type="button"

@@ -8,46 +8,27 @@ import EditItemModal from '../components/EditItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import ClaimTimelineModal from '../components/ClaimTimelineModal';
 
-/**
- * Dashboard Page Component
- * Unified personal control center for the logged-in user.
- * Displays:
- * - Personalized greeting and quick action buttons
- * - 4 Key Statistics cards (Total Lost, Total Found, Active Listings, Resolved Items)
- * - Navigation tabs (Overview, My Lost Items, My Found Items, Incoming Claims, My Submitted Claims)
- * - Detailed listings with clickable cards, status badges, and claim approval/rejection workflows
- * - Responsive layout with polished loading, empty, and error states
- */
 function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Data States
   const [items, setItems] = useState([]);
   const [incomingClaims, setIncomingClaims] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // The item currently being edited in the modal (null = modal closed)
   const [editingItem, setEditingItem] = useState(null);
 
-  // Delete state
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deletingItem, setDeletingItem] = useState(false);
   const [deleteModalError, setDeleteModalError] = useState('');
 
-  // Active View Filter Tab: 'overview' | 'lost' | 'found' | 'incoming' | 'my-claims'
   const [activeTab, setActiveTab] = useState('overview');
-
-  // Claim Timeline Modal State (null = closed)
   const [activeTimelineClaim, setActiveTimelineClaim] = useState(null);
-
-  // Claim Action State (approving/rejecting claim)
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
 
-  // Load all user data simultaneously
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -75,7 +56,6 @@ function Dashboard() {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  // Handle Approve / Reject / Review Incoming Claim
   const handleClaimStatusUpdate = async (claimId, newStatus, note = '') => {
     setActionLoadingId(claimId);
     setActionMessage(null);
@@ -85,7 +65,6 @@ function Dashboard() {
         type: 'success',
         text: `Claim successfully moved to ${newStatus.replace('_', ' ').toLowerCase()}.`,
       });
-      // Refresh dashboard data to sync item status and claim lists
       await loadDashboardData();
       if (activeTimelineClaim && activeTimelineClaim._id === claimId) {
         setActiveTimelineClaim(updated);
@@ -98,14 +77,12 @@ function Dashboard() {
       });
     } finally {
       setActionLoadingId(null);
-      // Clear temporary notice after 4 seconds
       setTimeout(() => {
         setActionMessage(null);
       }, 4000);
     }
   };
 
-  // Handle Delete Report Confirmation
   const handleDeleteItem = async () => {
     if (!itemToDelete) return;
     setDeletingItem(true);
@@ -113,9 +90,7 @@ function Dashboard() {
     try {
       await deleteItem(itemToDelete._id);
       const deletedTitle = itemToDelete.title;
-      // Remove item from state immediately
       setItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
-      // Remove any incoming claims on this item
       setIncomingClaims((prev) =>
         prev.filter((c) => (c.itemId?._id || c.itemId) !== itemToDelete._id)
       );
@@ -135,7 +110,6 @@ function Dashboard() {
     }
   };
 
-  // Filter items by type
   const lostItems = items.filter((item) => item.type === 'LOST');
   const foundItems = items.filter((item) => item.type === 'FOUND');
   const activeReportsCount = items.filter((item) => item.status === 'ACTIVE').length;
@@ -144,10 +118,8 @@ function Dashboard() {
     (c) => c.status === 'PENDING' || c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW'
   ).length;
 
-  // Date formatting helper using shared utility
   const formatDate = formatShortDate;
 
-  // Status Badge Helper
   const renderStatusBadge = (status) => {
     switch (status) {
       case 'RETURNED':
@@ -228,7 +200,6 @@ function Dashboard() {
     }
   };
 
-  // Reusable Item Card Component
   const renderItemCard = (item) => (
     <div
       key={item._id}
@@ -236,7 +207,6 @@ function Dashboard() {
       className="bg-white border border-[#E7E3DA] hover:border-[#1B382B]/40 rounded-xl p-4 transition-all duration-200 hover:shadow-sm cursor-pointer group flex flex-col justify-between"
     >
       <div className="flex gap-4">
-        {/* Thumbnail or Fallback Icon */}
         <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-[#FAF8F5] border border-[#E7E3DA] shrink-0 flex items-center justify-center">
           {item.imageUrl ? (
             <img
@@ -270,7 +240,6 @@ function Dashboard() {
           )}
         </div>
 
-        {/* Content Details */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <span
@@ -351,16 +320,13 @@ function Dashboard() {
     return (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="animate-pulse space-y-6">
-          {/* Header Skeleton */}
           <div className="h-32 bg-white border border-[#E7E3DA] rounded-2xl p-6"></div>
-          {/* Stats Grid Skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="h-28 bg-white border border-[#E7E3DA] rounded-xl"></div>
             <div className="h-28 bg-white border border-[#E7E3DA] rounded-xl"></div>
             <div className="h-28 bg-white border border-[#E7E3DA] rounded-xl"></div>
             <div className="h-28 bg-white border border-[#E7E3DA] rounded-xl"></div>
           </div>
-          {/* Content Skeleton */}
           <div className="h-64 bg-white border border-[#E7E3DA] rounded-2xl"></div>
         </div>
       </main>
@@ -399,7 +365,6 @@ function Dashboard() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Action Notification Message */}
       {actionMessage && (
         <div
           className={`p-4 rounded-xl border text-sm font-medium flex items-center justify-between transition-all ${
@@ -419,9 +384,7 @@ function Dashboard() {
         </div>
       )}
 
-      {/* 1. Welcome Section & Quick Actions Header */}
       <section className="bg-white border border-[#E7E3DA] rounded-2xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
-        {/* Subtle decorative background accent */}
         <div className="absolute top-0 right-0 w-80 h-36 bg-gradient-to-bl from-[#1B382B]/5 via-transparent to-transparent pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
@@ -434,7 +397,7 @@ function Dashboard() {
 
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C201D] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1C201D] tracking-tight">
               Welcome back, {user?.name || 'Member'}
             </h1>
             <p className="text-sm text-[#5C645E] mt-1 max-w-xl">
@@ -442,7 +405,6 @@ function Dashboard() {
             </p>
           </div>
 
-          {/* Quick Actions Buttons */}
           <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
             <Link
               to="/report/lost"
@@ -474,9 +436,7 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 2. Statistics Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Stat 1: Total Lost Reports */}
         <div className="bg-white border border-[#E7E3DA] rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between text-[#5C645E] mb-2">
             <span className="text-xs font-semibold tracking-wide uppercase">My Lost Reports</span>
@@ -491,7 +451,7 @@ function Dashboard() {
               </svg>
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl sm:text-3xl font-bold text-[#1C201D]">
             {lostItems.length}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -499,7 +459,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Stat 2: Total Found Reports */}
         <div className="bg-white border border-[#E7E3DA] rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between text-[#5C645E] mb-2">
             <span className="text-xs font-semibold tracking-wide uppercase">My Found Reports</span>
@@ -514,7 +473,7 @@ function Dashboard() {
               </svg>
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl sm:text-3xl font-bold text-[#1C201D]">
             {foundItems.length}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -522,7 +481,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Stat 3: Active Listings */}
         <div className="bg-white border border-[#E7E3DA] rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between text-[#5C645E] mb-2">
             <span className="text-xs font-semibold tracking-wide uppercase">Active Listings</span>
@@ -530,7 +488,7 @@ function Dashboard() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl sm:text-3xl font-bold text-[#1C201D]">
             {activeReportsCount}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -538,7 +496,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Stat 4: Successfully Resolved */}
         <div className="bg-white border border-[#E7E3DA] rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between text-[#5C645E] mb-2">
             <span className="text-xs font-semibold tracking-wide uppercase">Resolved Returns</span>
@@ -548,7 +505,7 @@ function Dashboard() {
               </svg>
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl sm:text-3xl font-bold text-[#1C201D]">
             {resolvedItemsCount}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -557,7 +514,6 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 3. Navigation Filter Tabs */}
       <section className="border-b border-[#E7E3DA]">
         <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto pb-1 scrollbar-none">
           <button
@@ -656,12 +612,8 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 4. Tab Views Content */}
-
-      {/* VIEW: OVERVIEW */}
       {activeTab === 'overview' && (
         <div className="space-y-8">
-          {/* Incoming Claims Attention Banner (if pending claims exist) */}
           {pendingIncomingCount > 0 && (
             <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -685,11 +637,10 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Subsection: Recent Lost Items */}
           <div className="bg-white border border-[#E7E3DA] rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E7E3DA]">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#1C201D]">
+                <h2 className="text-lg font-bold text-[#1C201D]">
                   My Lost Items ({lostItems.length})
                 </h2>
                 <p className="text-xs text-[#5C645E]">Recent reports of missing belongings</p>
@@ -738,11 +689,10 @@ function Dashboard() {
             )}
           </div>
 
-          {/* Subsection: Recent Found Items */}
           <div className="bg-white border border-[#E7E3DA] rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E7E3DA]">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#1C201D]">
+                <h2 className="text-lg font-bold text-[#1C201D]">
                   My Found Items ({foundItems.length})
                 </h2>
                 <p className="text-xs text-[#5C645E]">Items you discovered and reported to the registry</p>
@@ -793,12 +743,11 @@ function Dashboard() {
         </div>
       )}
 
-      {/* VIEW: MY LOST ITEMS */}
       {activeTab === 'lost' && (
         <div className="bg-white border border-[#E7E3DA] rounded-2xl p-6 sm:p-7 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E7E3DA]">
             <div>
-              <h2 className="text-xl font-serif font-bold text-[#1C201D]">
+              <h2 className="text-xl font-bold text-[#1C201D]">
                 My Lost Belongings
               </h2>
               <p className="text-xs text-[#5C645E]">
@@ -839,12 +788,11 @@ function Dashboard() {
         </div>
       )}
 
-      {/* VIEW: MY FOUND ITEMS */}
       {activeTab === 'found' && (
         <div className="bg-white border border-[#E7E3DA] rounded-2xl p-6 sm:p-7 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E7E3DA]">
             <div>
-              <h2 className="text-xl font-serif font-bold text-[#1C201D]">
+              <h2 className="text-xl font-bold text-[#1C201D]">
                 My Found Belongings
               </h2>
               <p className="text-xs text-[#5C645E]">
@@ -885,11 +833,10 @@ function Dashboard() {
         </div>
       )}
 
-      {/* VIEW: INCOMING CLAIMS */}
       {activeTab === 'incoming' && (
         <div className="bg-white border border-[#E7E3DA] rounded-2xl p-6 sm:p-7 shadow-xs space-y-6">
           <div className="pb-4 border-b border-[#E7E3DA]">
-            <h2 className="text-xl font-serif font-bold text-[#1C201D]">
+            <h2 className="text-xl font-bold text-[#1C201D]">
               Incoming Ownership Claims
             </h2>
             <p className="text-xs text-[#5C645E]">
@@ -905,7 +852,6 @@ function Dashboard() {
                   className="border border-[#E7E3DA] hover:border-[#1B382B]/30 rounded-xl p-5 bg-[#FAF8F5]/60 hover:bg-[#FAF8F5] transition-all"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                    {/* Item and Claimant Info */}
                     <div className="space-y-3 flex-1">
                       <div className="flex flex-wrap items-center justify-between sm:justify-start gap-3">
                         <span className="font-mono text-xs font-bold text-[#1B382B] bg-[#1B382B]/5 px-2 py-0.5 rounded border border-[#1B382B]/10">
@@ -917,7 +863,6 @@ function Dashboard() {
                         </span>
                       </div>
 
-                      {/* Associated Item */}
                       {claim.itemId ? (
                         <div className="flex items-center gap-3">
                           {claim.itemId.imageUrl && (
@@ -946,7 +891,6 @@ function Dashboard() {
                         <p className="text-xs text-[#8A928D] italic">Associated item was deleted</p>
                       )}
 
-                      {/* Claimant Identity & Message */}
                       <div className="p-3 bg-white rounded-lg border border-[#E7E3DA] text-xs space-y-1.5">
                         <div className="flex items-center gap-2">
                           <span className="text-[#5C645E] font-medium">Claimant:</span>
@@ -974,7 +918,6 @@ function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Claim Decision & Timeline Actions */}
                     <div className="flex flex-col sm:flex-row lg:flex-col gap-2 shrink-0 self-end lg:self-center">
                       <button
                         type="button"
@@ -988,7 +931,6 @@ function Dashboard() {
                         Track Timeline
                       </button>
 
-                      {/* Status quick triggers */}
                       {(claim.status === 'PENDING' || claim.status === 'SUBMITTED') && (
                         <>
                           <button
@@ -1055,12 +997,11 @@ function Dashboard() {
         </div>
       )}
 
-      {/* VIEW: MY SUBMITTED CLAIMS */}
       {activeTab === 'my-claims' && (
         <div className="bg-white border border-[#E7E3DA] rounded-2xl p-6 sm:p-7 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E7E3DA]">
             <div>
-              <h2 className="text-xl font-serif font-bold text-[#1C201D]">
+              <h2 className="text-xl font-bold text-[#1C201D]">
                 My Submitted Claims
               </h2>
               <p className="text-xs text-[#5C645E]">
@@ -1142,10 +1083,8 @@ function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Step Progress Tracker Bar */}
                     <div className="bg-white rounded-lg p-3 border border-[#E7E3DA]/80">
                       <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                        {/* Step 1: Submitted */}
                         <div className="flex flex-col items-center">
                           <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-emerald-100 text-emerald-800 mb-1">
                             ✓
@@ -1153,7 +1092,6 @@ function Dashboard() {
                           <span className="font-semibold text-[#1C201D] text-[11px]">Submitted</span>
                         </div>
 
-                        {/* Step 2: Under Review */}
                         <div className="flex flex-col items-center">
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 ${
                             isUnderReview
@@ -1167,7 +1105,6 @@ function Dashboard() {
                           <span className="font-semibold text-[#1C201D] text-[11px]">Under Review</span>
                         </div>
 
-                        {/* Step 3: Decision */}
                         <div className="flex flex-col items-center">
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 ${
                             isRejected
@@ -1183,7 +1120,6 @@ function Dashboard() {
                           </span>
                         </div>
 
-                        {/* Step 4: Returned */}
                         <div className="flex flex-col items-center">
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1 ${
                             isReturned
@@ -1197,7 +1133,6 @@ function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Context Notice / Banners */}
                     {isApproved && (
                       <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-start gap-2">
                         <svg className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -1267,13 +1202,11 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Edit Item Modal — opens when user clicks Edit on any item card */}
       {editingItem && (
         <EditItemModal
           item={editingItem}
           onClose={() => setEditingItem(null)}
           onSaved={(updatedItem) => {
-            // Update the item in local state so the card reflects new data immediately
             setItems((prev) =>
               prev.map((i) => (i._id === updatedItem._id ? { ...i, ...updatedItem } : i))
             );
@@ -1282,7 +1215,6 @@ function Dashboard() {
         />
       )}
 
-      {/* Delete Item Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={Boolean(itemToDelete)}
         itemName={itemToDelete?.title}
@@ -1295,7 +1227,6 @@ function Dashboard() {
         error={deleteModalError}
       />
 
-      {/* Claim Timeline Tracking Modal */}
       {activeTimelineClaim && (
         <ClaimTimelineModal
           claim={activeTimelineClaim}

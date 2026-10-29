@@ -1,5 +1,6 @@
 
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 
 const protect = async (req, res, next) => {
@@ -26,6 +27,13 @@ const protect = async (req, res, next) => {
             });
         }
 
+        if (user.isSuspended) {
+            return res.status(403).json({
+                message: `Account suspended: ${user.suspensionReason || 'Please contact administration for assistance.'}`,
+                isSuspended: true
+            });
+        }
+
         req.user = user;
         return next();
     } catch (error) {
@@ -40,4 +48,32 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect };
+/**
+ * Authorization middleware for administrative privileges
+ * Requires protect middleware to have executed first.
+ */
+const admin = (req, res, next) => {
+    if (req.user && req.user.role === 'ADMIN') {
+        return next();
+    }
+
+    return res.status(403).json({
+        message: 'Access denied: Administrator privileges required'
+    });
+};
+
+/**
+ * Rate limiter for password reset actions (Forgot Password & Reset Password).
+ * Limits each IP address to 5 requests per 15-minute window to prevent abuse.
+ */
+const passwordResetLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        message: 'Too many password reset requests from this IP. Please try again after 15 minutes.',
+    },
+});
+
+module.exports = { protect, admin, passwordResetLimiter };

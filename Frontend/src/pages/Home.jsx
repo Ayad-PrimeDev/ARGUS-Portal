@@ -4,9 +4,6 @@ import { getItems } from '../services/itemService';
 import { formatShortDate } from '../utils/dateUtils';
 import { ITEM_CATEGORIES } from '../constants/categories';
 
-/**
- * Featured item categories with bespoke icons and quick filter links.
- */
 const FEATURED_CATEGORIES = [
   {
     name: 'Keys & Cards',
@@ -86,7 +83,6 @@ function Home() {
 
   const navigate = useNavigate();
 
-  // Load real active listings from backend and compute live totals
   const loadRecentItems = async () => {
     setLoading(true);
     setError(null);
@@ -130,10 +126,7 @@ function Home() {
 
   return (
     <div className="bg-[#FAF8F2] text-[#292B28] min-h-screen flex flex-col selection:bg-[#DCE7DC] selection:text-[#244C3A]">
-
-      {/* ── 1. Hero Section: Bright, Welcoming & High-Contrast ── */}
       <section className="relative bg-[#FAF8F2] text-[#292B28] overflow-hidden border-b border-[#E7E3DA]">
-        {/* Soft, airy ambient texture */}
         <div className="absolute inset-0 pointer-events-none opacity-60">
           <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#DCE7DC]/40 blur-3xl" />
           <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#F0E8D9]/70 blur-3xl" />
@@ -141,22 +134,16 @@ function Home() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 lg:py-20 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-
-            {/* Left Column: Mission, Search, and Primary Actions */}
             <div className="lg:col-span-7 text-left">
-
-              {/* Headline */}
-              <h1 className="font-display text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-[#292B28] mb-5 leading-[1.14]">
+              <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-[#292B28] mb-5 leading-[1.14]">
                 Reuniting people with <br />
-                <span className="text-[#244C3A] italic font-normal">what matters most.</span>
+                <span className="text-[#244C3A] font-bold">what matters most.</span>
               </h1>
 
-              {/* Subtitle */}
               <p className="text-base sm:text-lg text-[#5C645E] max-w-xl mb-8 leading-relaxed font-normal">
                 A verified community platform to report misplaced belongings, return discovered articles, and securely verify rightful ownership.
               </p>
 
-              {/* Functional Search Bar */}
               <form
                 onSubmit={handleSearchSubmit}
                 className="max-w-xl flex flex-col sm:flex-row gap-2 mb-4 bg-white p-2 rounded-xl shadow-sm border border-[#D8D3C8] focus-within:border-[#244C3A] focus-within:ring-2 focus-within:ring-[#244C3A]/20 transition-all"
@@ -191,7 +178,6 @@ function Home() {
                 </button>
               </form>
 
-              {/* Search Suggestions */}
               <div className="flex flex-wrap items-center gap-2 mb-8 text-xs text-[#5C645E]">
                 <span className="text-[#244C3A] font-semibold">Common items:</span>
                 {['Student ID', 'Car Keys', 'Backpack', 'Earphones', 'Water Bottle'].map((keyword) => (
@@ -206,7 +192,6 @@ function Home() {
                 ))}
               </div>
 
-              {/* Primary Dual Actions */}
               <div className="flex flex-wrap items-center gap-3.5">
                 <Link
                   to="/report"
@@ -228,15 +213,11 @@ function Home() {
               </div>
             </div>
 
-            {/* Right Column: Grounded Lost & Found Visual Composition */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
               <div className="relative max-w-sm sm:max-w-md w-full">
-                {/* Subtle soft ambient glow */}
                 <div className="absolute -inset-2 bg-[#DCE7DC]/60 rounded-2xl blur-lg" />
 
-                {/* Main Visual Container */}
                 <div className="relative rounded-2xl overflow-hidden border border-[#D8D3C8] bg-white shadow-lg">
-                  {/* Photo showcasing everyday belongings */}
                   <img
                     src="/hero-lost-items.jpg"
                     alt="Everyday lost belongings including keys, wallet, headphones, and backpack"
@@ -244,7 +225,6 @@ function Home() {
                     loading="eager"
                   />
 
-                  {/* Overlaid Live Context Banner */}
                   <div className="p-4 bg-white border-t border-[#E7E3DA]">
                     <div className="flex items-center justify-between gap-3">
                       <div>
@@ -282,15 +262,13 @@ function Home() {
         </div>
       </section>
 
-      {/* ── 2. Live Registry Metrics Bar: Soft Beige Accent ── */}
       <section className="bg-[#F0E8D9] border-b border-[#E2DAC9] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
-            {/* Metric 1 */}
             <div className="bg-white border border-[#E2DAC9] rounded-xl p-5 flex items-center justify-between shadow-2xs hover:border-[#C05634]/30 transition-colors">
               <div>
                 <p className="text-xs uppercase tracking-wider font-bold text-[#5C645E]">Active Lost Reports</p>
-                <h3 className="text-2xl font-bold font-display text-[#C05634] mt-1">{loading ? '—' : lostCount}</h3>
+                <h3 className="text-2xl font-bold text-[#C05634] mt-1">{loading ? '—' : lostCount}</h3>
                 <p className="text-xs text-[#5C645E] mt-0.5">Misplaced belongings reported</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-[#FDF5F2] text-[#C05634] border border-[#C05634]/20 flex items-center justify-center shrink-0">
@@ -300,11 +278,10 @@ function Home() {
               </div>
             </div>
 
-            {/* Metric 2 */}
             <div className="bg-white border border-[#E2DAC9] rounded-xl p-5 flex items-center justify-between shadow-2xs hover:border-[#244C3A]/30 transition-colors">
               <div>
                 <p className="text-xs uppercase tracking-wider font-bold text-[#5C645E]">Items Found &amp; Reported</p>
-                <h3 className="text-2xl font-bold font-display text-[#244C3A] mt-1">{loading ? '—' : foundCount}</h3>
+                <h3 className="text-2xl font-bold text-[#244C3A] mt-1">{loading ? '—' : foundCount}</h3>
                 <p className="text-xs text-[#5C645E] mt-0.5">Awaiting rightful claimants</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-[#DCE7DC] text-[#244C3A] border border-[#244C3A]/20 flex items-center justify-center shrink-0">
@@ -314,11 +291,10 @@ function Home() {
               </div>
             </div>
 
-            {/* Metric 3 */}
             <div className="bg-white border border-[#E2DAC9] rounded-xl p-5 flex items-center justify-between shadow-2xs hover:border-[#244C3A]/30 transition-colors">
               <div>
                 <p className="text-xs uppercase tracking-wider font-bold text-[#5C645E]">Registry Coverage</p>
-                <h3 className="text-2xl font-bold font-display text-[#292B28] mt-1">{ITEM_CATEGORIES.length} Categories</h3>
+                <h3 className="text-2xl font-bold text-[#292B28] mt-1">{ITEM_CATEGORIES.length} Categories</h3>
                 <p className="text-xs text-[#5C645E] mt-0.5">Comprehensive coverage</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-[#FAF8F2] text-[#244C3A] border border-[#D8D3C8] flex items-center justify-center shrink-0">
@@ -331,13 +307,12 @@ function Home() {
         </div>
       </section>
 
-      {/* ── 3. Quick Category Directory: Clean Warm Ivory Surface ── */}
       <section className="py-14 border-b border-[#E7E3DA] bg-[#FAF8F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-3 border-b border-[#E7E3DA]">
             <div>
-              <span className="text-xs uppercase tracking-widest font-bold text-[#244C3A]">Directory</span>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#292B28] mt-1">
+              <span className="text-xs uppercase tracking-wide font-bold text-[#244C3A]">Directory</span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#292B28] mt-1">
                 Browse by Item Category
               </h2>
             </div>
@@ -361,7 +336,7 @@ function Home() {
                   {cat.icon}
                 </div>
                 <div>
-                  <h3 className="font-display text-sm font-bold text-[#292B28] group-hover:text-[#244C3A] transition-colors">
+                  <h3 className="text-sm font-bold text-[#292B28] group-hover:text-[#244C3A] transition-colors">
                     {cat.name}
                   </h3>
                   <p className="text-xs text-[#5C645E] mt-1 leading-snug">
@@ -374,12 +349,11 @@ function Home() {
         </div>
       </section>
 
-      {/* ── 4. How ARGUS Works: Step-by-Step with Soft Beige Grounding ── */}
       <section className="py-16 border-b border-[#E2DAC9] bg-[#F0E8D9]/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs uppercase tracking-widest font-bold text-[#C05634]">Safe &amp; Systematic</span>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#292B28] mt-1">
+            <span className="text-xs uppercase tracking-wide font-bold text-[#C05634]">Safe &amp; Systematic</span>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#292B28] mt-1">
               How ARGUS Helps You Recover Belongings
             </h2>
             <p className="text-sm text-[#5C645E] mt-2">
@@ -388,11 +362,10 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1 */}
             <div className="relative p-6 sm:p-7 rounded-2xl bg-white border border-[#E2DAC9] flex flex-col justify-between shadow-2xs hover:border-[#C05634]/30 transition-colors">
               <div>
-                <span className="font-display text-3xl font-extrabold text-[#C05634]">01</span>
-                <h3 className="font-display text-lg font-bold text-[#292B28] mt-2 mb-2">
+                <span className="text-3xl font-bold text-[#C05634]">01</span>
+                <h3 className="text-lg font-bold text-[#292B28] mt-2 mb-2">
                   Submit a Detailed Report
                 </h3>
                 <p className="text-xs sm:text-sm text-[#5C645E] leading-relaxed">
@@ -409,11 +382,10 @@ function Home() {
               </div>
             </div>
 
-            {/* Step 2 */}
             <div className="relative p-6 sm:p-7 rounded-2xl bg-white border border-[#E2DAC9] flex flex-col justify-between shadow-2xs hover:border-[#244C3A]/30 transition-colors">
               <div>
-                <span className="font-display text-3xl font-extrabold text-[#244C3A]">02</span>
-                <h3 className="font-display text-lg font-bold text-[#292B28] mt-2 mb-2">
+                <span className="text-3xl font-bold text-[#244C3A]">02</span>
+                <h3 className="text-lg font-bold text-[#292B28] mt-2 mb-2">
                   Search &amp; Narrow Results
                 </h3>
                 <p className="text-xs sm:text-sm text-[#5C645E] leading-relaxed">
@@ -430,11 +402,10 @@ function Home() {
               </div>
             </div>
 
-            {/* Step 3 */}
             <div className="relative p-6 sm:p-7 rounded-2xl bg-white border border-[#E2DAC9] flex flex-col justify-between shadow-2xs hover:border-[#5C645E]/30 transition-colors">
               <div>
-                <span className="font-display text-3xl font-extrabold text-[#5C645E]/70">03</span>
-                <h3 className="font-display text-lg font-bold text-[#292B28] mt-2 mb-2">
+                <span className="text-3xl font-bold text-[#5C645E]/70">03</span>
+                <h3 className="text-lg font-bold text-[#292B28] mt-2 mb-2">
                   Verify &amp; Recover Safely
                 </h3>
                 <p className="text-xs sm:text-sm text-[#5C645E] leading-relaxed">
@@ -451,11 +422,10 @@ function Home() {
         </div>
       </section>
 
-      {/* ── 5. Recent Community Listings Section (Live API Data) ── */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex-1 w-full bg-[#FAF8F2]">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 pb-4 border-b border-[#E7E3DA]">
           <div>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#292B28] mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#292B28] mt-1">
               Recently Reported Items
             </h2>
             <p className="text-xs sm:text-sm text-[#5C645E] mt-1">
@@ -471,7 +441,6 @@ function Home() {
           </Link>
         </div>
 
-        {/* Loading Skeletons */}
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((skeletonId) => (
@@ -489,7 +458,6 @@ function Home() {
           </div>
         )}
 
-        {/* Error State */}
         {!loading && error && (
           <div className="bg-white border border-red-200 rounded-2xl p-8 text-center max-w-md mx-auto shadow-xs">
             <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3">
@@ -513,7 +481,6 @@ function Home() {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && !error && recentItems.length === 0 && (
           <div className="bg-white border border-[#E7E3DA] rounded-2xl p-10 text-center max-w-md mx-auto shadow-xs">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#DCE7DC]/60 text-[#244C3A] mb-3">
@@ -521,7 +488,7 @@ function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
             </div>
-            <h3 className="font-display text-base font-bold text-[#292B28] mb-1.5">
+            <h3 className="text-base font-bold text-[#292B28] mb-1.5">
               No Active Listings Yet
             </h3>
             <p className="text-xs text-[#5C645E] mb-5 leading-relaxed">
@@ -545,7 +512,6 @@ function Home() {
           </div>
         )}
 
-        {/* Live Items Grid */}
         {!loading && !error && recentItems.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentItems.map((item) => {
@@ -557,7 +523,6 @@ function Home() {
                   to={`/items/${item._id}`}
                   className="card-lift bg-white border border-[#E7E3DA] rounded-xl overflow-hidden flex flex-col justify-between group shadow-2xs hover:shadow-md transition-all"
                 >
-                  {/* Photo or Clean Category Fallback Banner */}
                   <div className="card-img-wrap relative">
                     {item.imageUrl ? (
                       <img
@@ -593,9 +558,8 @@ function Home() {
                       </div>
                     )}
 
-                    {/* Status Badge */}
                     <span
-                      className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xs ${
+                      className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-xs ${
                         isLost
                           ? 'bg-[#C05634] text-white'
                           : 'bg-[#244C3A] text-white'
@@ -607,7 +571,6 @@ function Home() {
 
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      {/* Category & Date */}
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-[#5C645E]">
                           {item.category}
@@ -617,18 +580,15 @@ function Home() {
                         </span>
                       </div>
 
-                      {/* Title */}
-                      <h3 className="font-display text-base font-bold text-[#292B28] leading-snug mb-2 line-clamp-1 group-hover:text-[#244C3A] transition-colors">
+                      <h3 className="text-base font-bold text-[#292B28] leading-snug mb-2 line-clamp-1 group-hover:text-[#244C3A] transition-colors">
                         {item.title}
                       </h3>
 
-                      {/* Description */}
                       <p className="text-xs text-[#5C645E] leading-relaxed mb-4 line-clamp-2">
                         {item.description || 'No detailed description provided.'}
                       </p>
                     </div>
 
-                    {/* Metadata Footer */}
                     <div className="pt-3 border-t border-[#E7E3DA] text-xs text-[#5C645E] flex items-center justify-between">
                       <span className="truncate max-w-[65%] font-medium text-[#292B28] flex items-center gap-1.5">
                         <svg
@@ -659,7 +619,6 @@ function Home() {
         )}
       </section>
 
-      {/* ── 6. Trust & Safety Notice: Grounded Soft Beige Surface ── */}
       <section className="bg-[#F0E8D9] border-t border-[#E2DAC9] py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-[#E2DAC9] rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs">
@@ -670,7 +629,7 @@ function Home() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-[#292B28]">
+                <h3 className="text-base sm:text-lg font-bold text-[#292B28]">
                   Safe Item Recovery Guidelines
                 </h3>
                 <p className="text-xs sm:text-sm text-[#5C645E] mt-1 max-w-2xl leading-relaxed">

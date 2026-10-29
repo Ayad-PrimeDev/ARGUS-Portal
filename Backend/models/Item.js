@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the Item Schema for Lost and Found posts
 const itemSchema = new mongoose.Schema(
     {
         title: {
@@ -19,7 +18,7 @@ const itemSchema = new mongoose.Schema(
         type: {
             type: String,
             required: [true, 'Please specify the item type (LOST or FOUND)'],
-            enum: ['LOST', 'FOUND'] // Restricts type strictly to LOST or FOUND
+            enum: ['LOST', 'FOUND']
         },
         location: {
             type: String,
@@ -31,7 +30,7 @@ const itemSchema = new mongoose.Schema(
         },
         imageUrl: {
             type: String,
-            default: '' // Optional URL for uploaded item picture
+            default: ''
         },
         contactInformation: {
             type: String,
@@ -39,28 +38,63 @@ const itemSchema = new mongoose.Schema(
         },
         secretQuestion: {
             type: String,
-            default: '' // Optional security question to verify ownership
+            default: ''
         },
         secretAnswer: {
             type: String,
-            default: '' // Optional security answer to verify ownership
+            default: ''
         },
         submitterId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User', // Reference to the User model who submitted the item
+            ref: 'User',
             required: [true, 'Please specify the submitter']
         },
         status: {
             type: String,
-            enum: ['ACTIVE', 'CLAIMED', 'CLOSED'], // Allowed status values
+            enum: ['ACTIVE', 'CLAIMED', 'CLOSED'],
             default: 'ACTIVE'
+        },
+        isFlagged: {
+            type: Boolean,
+            default: false
+        },
+        flags: [
+            {
+                reportedBy: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'User'
+                },
+                reason: {
+                    type: String,
+                    required: true
+                },
+                details: {
+                    type: String,
+                    default: ''
+                },
+                createdAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ],
+        moderationStatus: {
+            type: String,
+            enum: ['CLEAN', 'FLAGGED', 'RESOLVED', 'REMOVED'],
+            default: 'CLEAN'
+        },
+        moderationReason: {
+            type: String,
+            default: ''
+        },
+        isHidden: {
+            type: Boolean,
+            default: false
         }
     },
     {
-        // Automatically manages 'createdAt' and 'updatedAt' fields
         timestamps: true
     }
 );
 
-// Export the Item model based on the schema
 module.exports = mongoose.model('Item', itemSchema);

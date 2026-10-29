@@ -8,35 +8,30 @@ const createClaim = async (req, res, next) => {
     try {
         const { itemId, message, providedAnswer } = req.body;
 
-        // 1. Validate required fields
         if (!itemId || !message) {
             res.status(400);
             throw new Error('Please provide itemId and a message explaining your claim');
         }
 
-        // 2. Verify that the item exists
         const item = await Item.findById(itemId);
         if (!item) {
             res.status(404);
             throw new Error('Item not found');
         }
 
-        // 3. Verify user is not claiming their own item
         if (item.submitterId.toString() === req.user._id.toString()) {
             res.status(400);
             throw new Error('You cannot submit a claim for an item you reported');
         }
 
-        // 4. Verify item is active and eligible for claims
         if (item.status !== 'ACTIVE') {
             res.status(400);
             throw new Error('This item is no longer available for claims');
         }
 
-        // 5. Create Claim document in MongoDB with initial SUBMITTED timeline event
         const claim = await Claim.create({
             itemId,
-            requesterId: req.user._id, // Assign logged-in user ID
+            requesterId: req.user._id,
             message: message.trim(),
             providedAnswer: (providedAnswer || '').trim(),
             status: 'SUBMITTED',
@@ -50,7 +45,6 @@ const createClaim = async (req, res, next) => {
             ]
         });
 
-        // 6. Return the created claim populated with item information
         const populatedClaim = await Claim.findById(claim._id)
             .populate('itemId', 'title description category type location imageUrl status')
             .populate('requesterId', 'name email profileImage')
@@ -58,7 +52,7 @@ const createClaim = async (req, res, next) => {
 
         res.status(201).json(populatedClaim);
     } catch (error) {
-        next(error); // Pass error to global error handler
+        next(error);
     }
 };
 
@@ -128,21 +122,18 @@ const updateClaimStatus = async (req, res, next) => {
         const { status, note } = req.body;
         const targetStatus = status ? status.toUpperCase() : null;
 
-        // 1. Validate status input
         const allowedStatuses = ['UNDER_REVIEW', 'APPROVED', 'REJECTED', 'RETURNED'];
         if (!targetStatus || !allowedStatuses.includes(targetStatus)) {
             res.status(400);
             throw new Error('Please provide a valid status: UNDER_REVIEW, APPROVED, REJECTED, or RETURNED');
         }
 
-        // 2. Find the claim
         const claim = await Claim.findById(req.params.id);
         if (!claim) {
             res.status(404);
             throw new Error('Claim not found');
         }
 
-        // 3. Find associated item and verify review authority
         const item = await Item.findById(claim.itemId);
         if (!item) {
             res.status(404);
@@ -157,7 +148,6 @@ const updateClaimStatus = async (req, res, next) => {
             throw new Error('Forbidden: Only the item reporter or an administrator can update claim status');
         }
 
-        // 4. Validate workflow transitions
         // Normalize legacy PENDING to SUBMITTED
         const currentNormalized = (claim.status === 'PENDING') ? 'SUBMITTED' : claim.status;
 
@@ -186,13 +176,11 @@ const updateClaimStatus = async (req, res, next) => {
             throw new Error('Only newly submitted claims can transition to UNDER_REVIEW');
         }
 
-        // 5. Update claim status & store rejection reason if applicable
         claim.status = targetStatus;
         if (targetStatus === 'REJECTED') {
             claim.rejectionReason = note?.trim() || 'Claim declined by reviewer';
         }
 
-        // 6. Handle side effects for APPROVED and RETURNED
         if (targetStatus === 'APPROVED') {
             item.status = 'CLAIMED';
             await item.save();
@@ -217,7 +205,6 @@ const updateClaimStatus = async (req, res, next) => {
             }
         }
 
-        // 7. Append status change to timeline history
         const defaultNotes = {
             UNDER_REVIEW: 'Reviewer is examining verification details and security answer.',
             APPROVED: 'Ownership verified. Claim approved; item is awaiting physical handover.',
@@ -236,7 +223,6 @@ const updateClaimStatus = async (req, res, next) => {
 
         await claim.save();
 
-        // 8. Return populated claim
         const updatedClaim = await Claim.findById(claim._id)
             .populate('requesterId', 'name email profileImage')
             .populate('itemId', 'title description category type location imageUrl status submitterId')

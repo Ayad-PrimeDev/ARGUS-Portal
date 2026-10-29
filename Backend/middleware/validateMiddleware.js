@@ -1,6 +1,5 @@
 const { body, validationResult } = require('express-validator');
 
-// Reusable middleware to inspect validation results
 const validateRequest = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -15,7 +14,6 @@ const validateRequest = (req, res, next) => {
     next();
 };
 
-// Validation rules for user registration
 const registerValidation = [
     body('name')
         .trim()
@@ -31,7 +29,6 @@ const registerValidation = [
     validateRequest
 ];
 
-// Validation rules for changing password
 const changePasswordValidation = [
     body('currentPassword')
         .notEmpty()
@@ -49,7 +46,6 @@ const changePasswordValidation = [
     validateRequest
 ];
 
-// Validation rules for forgot password request
 const forgotPasswordValidation = [
     body('email')
         .trim()
@@ -60,7 +56,6 @@ const forgotPasswordValidation = [
     validateRequest
 ];
 
-// Validation rules for resetting password with token
 const resetPasswordValidation = [
     body('password')
         .isLength({ min: 8 })
@@ -75,7 +70,6 @@ const resetPasswordValidation = [
     validateRequest
 ];
 
-// Validation rules for user login
 const loginValidation = [
     body('email')
         .trim()
@@ -89,7 +83,6 @@ const loginValidation = [
     validateRequest
 ];
 
-// Validation rules for item creation
 const createItemValidation = [
     body('title')
         .trim()
@@ -108,7 +101,6 @@ const createItemValidation = [
     validateRequest
 ];
 
-// Validation rules for claim creation
 const createClaimValidation = [
     body('itemId')
         .trim()

@@ -1,13 +1,10 @@
-// Middleware to handle 404 (Not Found) for unknown routes
 const notFound = (req, res, next) => {
     const error = new Error(`Route Not Found - ${req.originalUrl}`);
     res.status(404);
-    next(error); // Forward error to the centralized error handler
+    next(error);
 };
 
-// Centralized error handling middleware
 const errorHandler = (err, req, res, next) => {
-    // If the status code is still 200 OK, default to 500 (Internal Server Error)
     let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     let message = err.message || 'Internal Server Error';
 

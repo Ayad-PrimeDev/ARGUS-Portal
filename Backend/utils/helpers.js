@@ -1,6 +1,16 @@
 const nodemailer = require('nodemailer');
 
 /**
+ * Safely escapes regular expression special characters to prevent regex injection attacks.
+ * @param {string} string 
+ * @returns {string} 
+ */
+const escapeRegex = (string) => {
+    if (!string || typeof string !== 'string') return '';
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+/**
  * Checks whether SMTP credentials have been provided in the environment.
  * @returns {boolean}
  */
@@ -71,6 +81,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
 };
 
 module.exports = {
+    escapeRegex,
     isEmailConfigured,
     sendEmail,
 };

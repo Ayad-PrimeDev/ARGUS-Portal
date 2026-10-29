@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { sendEmail, isEmailConfigured } = require('../utils/sendEmail');
+const { sendEmail, isEmailConfigured } = require('../utils/helpers');
 
 // Cookie settings for local development and production
 const getCookieOptions = () => ({
@@ -51,6 +51,8 @@ const registerUser = async (req, res, next) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                role: user.role || 'USER',
+                isSuspended: !!user.isSuspended,
                 createdAt: user.createdAt,
             });
         } else {
@@ -77,6 +79,11 @@ const loginUser = async (req, res, next) => {
         const user = await User.findOne({ email });
 
         if (user && (await bcrypt.compare(password, user.password))) {
+            if (user.isSuspended) {
+                res.status(403);
+                throw new Error(`Your account has been suspended${user.suspensionReason ? ': ' + user.suspensionReason : '. Please contact university support.'}`);
+            }
+
             if (!process.env.JWT_SECRET) {
                 throw new Error('JWT_SECRET is not configured');
             }
@@ -93,6 +100,8 @@ const loginUser = async (req, res, next) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                role: user.role || 'USER',
+                isSuspended: !!user.isSuspended,
                 createdAt: user.createdAt,
             });
         } else {
@@ -310,7 +319,6 @@ const resetPassword = async (req, res, next) => {
             throw new Error('Password reset token is invalid or has expired');
         }
 
-        // Hash new password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 

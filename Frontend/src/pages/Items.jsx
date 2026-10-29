@@ -4,23 +4,6 @@ import { getItems } from '../services/itemService';
 import { formatShortDate } from '../utils/dateUtils';
 import { ITEM_CATEGORIES } from '../constants/categories';
 
-/**
- * Items Listing Page with Advanced Search and Filters
- *
- * Displays active lost & found item listings from the registry.
- * Supported Advanced Filtering & Search:
- *  - Keyword search (name and description) with live search and clear action
- *  - Category filter dropdown using ITEM_CATEGORIES
- *  - Location filter with case-insensitive partial match & datalist suggestions
- *  - Date range filtering (From & To dates, boundary inclusive)
- *  - Item Type selector (All Items, Lost Items, Found Items)
- *  - Multi-option sorting (Newest, Oldest, A-Z, Z-A)
- *  - Clearly visible Clear All Filters button
- *  - URL query synchronization
- *  - Responsive desktop & mobile layouts
- */
-
-/* ─── Constants ──────────────────────────────────────────────────────────── */
 const ITEM_TYPES = [
   { label: 'All Items', value: '' },
   { label: 'Lost Items', value: 'LOST' },
@@ -36,15 +19,10 @@ const SORT_OPTIONS = [
 
 const SKELETON_COUNT = 9;
 
-/* ─── Helpers ────────────────────────────────────────────────────────────── */
-
 function formatDate(dateString) {
   return formatShortDate(dateString, '');
 }
 
-/**
- * Collect unique, non-empty location values from a list of items for suggestion hints.
- */
 function extractLocations(items) {
   const seen = new Set();
   return items
@@ -53,9 +31,6 @@ function extractLocations(items) {
     .sort((a, b) => a.localeCompare(b));
 }
 
-/* ─── Sub-components ─────────────────────────────────────────────────────── */
-
-/** Loading skeleton card */
 function SkeletonCard() {
   return (
     <div className="bg-white border border-[#E7E3DA] rounded-xl overflow-hidden skeleton">
@@ -77,7 +52,6 @@ function SkeletonCard() {
   );
 }
 
-/** Image fallback banner when no imageUrl */
 function ImageFallback({ category, type }) {
   const isLost = type === 'LOST';
   return (
@@ -87,7 +61,7 @@ function ImageFallback({ category, type }) {
       }`}
     >
       <span
-        className={`text-[11px] uppercase tracking-widest font-bold px-3 py-1 rounded-full border ${
+        className={`text-[11px] uppercase tracking-wide font-bold px-3 py-1 rounded-full border ${
           isLost
             ? 'text-[#C05634] border-[#C05634]/30 bg-[#C05634]/10'
             : 'text-[#1B382B] border-[#1B382B]/30 bg-[#1B382B]/10'
@@ -102,13 +76,11 @@ function ImageFallback({ category, type }) {
   );
 }
 
-/** Individual premium item card */
 function ItemCard({ item }) {
   const isLost = item.type === 'LOST';
 
   return (
     <article className="card-lift bg-white border border-[#E7E3DA] rounded-xl overflow-hidden flex flex-col group">
-      {/* Image */}
       <div className="card-img-wrap relative">
         {item.imageUrl ? (
           <img
@@ -121,9 +93,8 @@ function ItemCard({ item }) {
           <ImageFallback category={item.category} type={item.type} />
         )}
 
-        {/* Type badge — overlaid on image area */}
         <span
-          className={`absolute top-3 left-3 text-[11px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm ${
+          className={`absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm ${
             isLost
               ? 'bg-[#C05634] text-white'
               : 'bg-[#1B382B] text-[#FBF9F5]'
@@ -133,10 +104,8 @@ function ItemCard({ item }) {
         </span>
       </div>
 
-      {/* Content */}
       <div className="p-5 flex flex-col flex-1 justify-between">
         <div>
-          {/* Category + Date row */}
           <div className="flex items-center justify-between gap-2 mb-2.5">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#5C645E]">
               {item.category}
@@ -146,20 +115,17 @@ function ItemCard({ item }) {
             </span>
           </div>
 
-          {/* Title */}
-          <h3 className="font-display text-[15px] font-semibold text-[#1B382B] leading-snug mb-2 line-clamp-2">
+          <h3 className="text-[15px] font-semibold text-[#1B382B] leading-snug mb-2 line-clamp-2">
             <Link to={`/items/${item._id}`} className="hover:text-[#C05634] transition-colors">
               {item.title}
             </Link>
           </h3>
 
-          {/* Description */}
           <p className="text-[13px] text-[#5C645E] leading-relaxed line-clamp-3 mb-4">
             {item.description || 'No description provided.'}
           </p>
         </div>
 
-        {/* Footer: location + view link */}
         <div className="pt-3 border-t border-[#E7E3DA] flex items-center justify-between gap-2">
           <span className="text-[12px] text-[#1C201D] font-medium truncate max-w-[65%] flex items-center gap-1" title={item.location}>
             <svg
@@ -194,8 +160,6 @@ function ItemCard({ item }) {
   );
 }
 
-/* ─── Main Page Component ────────────────────────────────────────────────── */
-
 function Items() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -209,18 +173,15 @@ function Items() {
     }
   }, [location.state]);
 
-  // Data states
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Overall counts and location suggestions
   const [totalCount, setTotalCount] = useState(0);
   const [lostCount, setLostCount] = useState(0);
   const [foundCount, setFoundCount] = useState(0);
   const [locationSuggestions, setLocationSuggestions] = useState([]);
 
-  // Filter States initialized from URL search params
   const [activeType, setActiveType] = useState(searchParams.get('type') || '');
   const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || '');
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
@@ -231,10 +192,8 @@ function Items() {
   const [endDate, setEndDate] = useState(searchParams.get('endDate') || searchParams.get('to') || '');
   const [activeSort, setActiveSort] = useState(searchParams.get('sort') || 'newest');
 
-  // Mobile filters panel accordion toggle
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Debounce refs
   const searchDebounceRef = useRef(null);
   const locationDebounceRef = useRef(null);
 
@@ -274,7 +233,6 @@ function Items() {
     };
   }, []);
 
-  /* ── Fetch items from server using applied criteria ── */
   const fetchFilteredItems = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -292,7 +250,6 @@ function Items() {
       const itemsList = Array.isArray(data) ? data : [];
       setItems(itemsList);
 
-      // Update location suggestions if new locations emerge
       const newLocs = extractLocations(itemsList);
       if (newLocs.length > 0) {
         setLocationSuggestions((prev) => {
@@ -314,12 +271,10 @@ function Items() {
     }
   }, [activeType, activeCategory, keyword, activeLocation, startDate, endDate, activeSort]);
 
-  // Trigger server fetch whenever active filter criteria update
   useEffect(() => {
     fetchFilteredItems();
   }, [fetchFilteredItems]);
 
-  /* ── Debounced Search input handler ── */
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchInput(val);
@@ -371,7 +326,6 @@ function Items() {
     }
   };
 
-  /* ── Debounced Location input handler ── */
   const handleLocationChange = (e) => {
     const val = e.target.value;
     setLocationInput(val);
@@ -406,7 +360,6 @@ function Items() {
     });
   };
 
-  /* ── Category filter handler ── */
   const handleCategoryChange = (e) => {
     const val = e.target.value;
     setActiveCategory(val);
@@ -421,7 +374,6 @@ function Items() {
     });
   };
 
-  /* ── Type filter handler ── */
   const handleTypeChange = (typeVal) => {
     setActiveType(typeVal);
     updateUrlParams({
@@ -435,7 +387,6 @@ function Items() {
     });
   };
 
-  /* ── Date range filter handlers ── */
   const handleStartDateChange = (e) => {
     const val = e.target.value;
     setStartDate(val);
@@ -464,7 +415,6 @@ function Items() {
     });
   };
 
-  /* ── Sort handler ── */
   const handleSortChange = (e) => {
     const val = e.target.value;
     setActiveSort(val);
@@ -479,7 +429,6 @@ function Items() {
     });
   };
 
-  /* ── Reset all filters ── */
   const handleReset = () => {
     clearTimeout(searchDebounceRef.current);
     clearTimeout(locationDebounceRef.current);
@@ -497,7 +446,6 @@ function Items() {
     setSearchParams({}, { replace: true });
   };
 
-  // Determine if any non-default filter is actively applied
   const hasActiveFilters = Boolean(
     activeType ||
     keyword ||
@@ -540,10 +488,8 @@ function Items() {
         </div>
       )}
 
-      {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="bg-[#1B382B] text-[#FBF9F5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10">
-          {/* Breadcrumb */}
           <nav className="mb-4 text-xs text-[#FBF9F5]/50 flex items-center gap-1.5">
             <Link to="/" className="hover:text-[#FBF9F5]/80 transition-colors">Home</Link>
             <span>/</span>
@@ -552,7 +498,7 @@ function Items() {
 
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <h1 className="font-display text-3xl sm:text-4xl font-bold text-[#FBF9F5] leading-tight mb-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#FBF9F5] leading-tight mb-2">
                 Item Registry
               </h1>
               <p className="text-[#FBF9F5]/70 text-sm leading-relaxed max-w-2xl">
@@ -561,7 +507,6 @@ function Items() {
               </p>
             </div>
 
-            {/* Baseline counts */}
             {totalCount > 0 && (
               <div className="flex items-center gap-2 shrink-0 flex-wrap">
                 <span className="text-[11px] font-semibold uppercase tracking-wide bg-[#C05634]/25 text-[#FAD2C3] border border-[#C05634]/40 px-2.5 py-1 rounded-full">
@@ -579,12 +524,9 @@ function Items() {
         </div>
       </div>
 
-      {/* ── Advanced Search & Filter Controls Bar ──────────────────── */}
       <div className="sticky top-16 z-40 bg-[#FBF9F5]/98 backdrop-blur-md border-b border-[#E7E3DA] shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 space-y-3">
-          {/* Row 1: Search field + Type Tabs + Sort Dropdown + Mobile Filter Toggle */}
           <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
-            {/* Search Input with Clear Button */}
             <div className="relative flex-1 min-w-[260px]">
               <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#5C645E]">
                 <svg
@@ -624,7 +566,6 @@ function Items() {
               )}
             </div>
 
-            {/* Type selector tabs */}
             <div className="flex items-center gap-1 bg-white border border-[#E7E3DA] rounded-lg p-1 shrink-0 shadow-2xs">
               {ITEM_TYPES.map((t) => (
                 <button
@@ -642,7 +583,6 @@ function Items() {
               ))}
             </div>
 
-            {/* Sort Dropdown */}
             <div className="flex items-center gap-2 shrink-0">
               <label htmlFor="items-sort" className="text-xs font-medium text-[#5C645E] hidden sm:inline-block">
                 Sort:
@@ -660,7 +600,6 @@ function Items() {
                 ))}
               </select>
 
-              {/* Mobile Filter Toggle Button */}
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen((prev) => !prev)}
@@ -684,13 +623,11 @@ function Items() {
             </div>
           </div>
 
-          {/* Row 2: Secondary Advanced Filters (Category, Location, Date Range, Clear All) */}
           <div
             className={`flex-col lg:flex-row flex-wrap gap-3 items-stretch lg:items-center pt-2 border-t border-[#E7E3DA]/70 ${
               mobileFiltersOpen ? 'flex' : 'hidden lg:flex'
             }`}
           >
-            {/* Category Dropdown */}
             <div className="flex-1 min-w-[190px]">
               <label htmlFor="items-category" className="sr-only">Category</label>
               <select
@@ -708,7 +645,6 @@ function Items() {
               </select>
             </div>
 
-            {/* Location Input with Datalist */}
             <div className="relative flex-1 min-w-[200px]">
               <span className="absolute inset-y-0 left-2.5 flex items-center pointer-events-none text-[#5C645E]">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -744,7 +680,6 @@ function Items() {
               )}
             </div>
 
-            {/* Date Range: From & To */}
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
               <div className="flex items-center gap-1.5 bg-white border border-[#E7E3DA] rounded-lg px-2.5 py-1 text-xs shadow-2xs">
                 <span className="text-[#5C645E] font-medium text-[11px]">From:</span>
@@ -771,7 +706,6 @@ function Items() {
               </div>
             </div>
 
-            {/* Clear All Filters Button */}
             {hasActiveFilters && (
               <button
                 type="button"
@@ -787,7 +721,6 @@ function Items() {
             )}
           </div>
 
-          {/* Invalid Date Warning Banner */}
           {isInvalidDateRange && (
             <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-xs flex items-center gap-2">
               <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -797,9 +730,7 @@ function Items() {
             </div>
           )}
 
-          {/* Row 3: Active Filter Chips & Results Count Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
-            {/* Active Filter Chips */}
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[#5C645E] text-[11px] font-medium">
                 {loading ? 'Searching registry…' : `Showing ${items.length} ${items.length === 1 ? 'item' : 'items'}:`}
@@ -866,7 +797,6 @@ function Items() {
               )}
             </div>
 
-            {/* Quick Clear All text link when active */}
             {hasActiveFilters && (
               <button
                 type="button"
@@ -880,10 +810,7 @@ function Items() {
         </div>
       </div>
 
-      {/* ── Main content ─────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-        {/* Loading skeletons */}
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: SKELETON_COUNT }, (_, i) => (
@@ -892,7 +819,6 @@ function Items() {
           </div>
         )}
 
-        {/* Error state */}
         {!loading && error && (
           <div className="max-w-md mx-auto mt-16 text-center">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 border border-red-200 flex items-center justify-center">
@@ -911,7 +837,7 @@ function Items() {
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
             </div>
-            <h2 className="font-display text-lg font-semibold text-[#1B382B] mb-1">
+            <h2 className="text-lg font-semibold text-[#1B382B] mb-1">
               Could not load listings
             </h2>
             <p className="text-sm text-[#5C645E] mb-5 leading-relaxed">{error}</p>
@@ -925,7 +851,6 @@ function Items() {
           </div>
         )}
 
-        {/* Empty state — no items in registry at all */}
         {!loading && !error && totalCount === 0 && items.length === 0 && !hasActiveFilters && (
           <div className="max-w-sm mx-auto mt-16 text-center">
             <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-[#F4F1EA] border border-[#E7E3DA] flex items-center justify-center">
@@ -944,7 +869,7 @@ function Items() {
                 <line x1="12" y1="22.08" x2="12" y2="12" />
               </svg>
             </div>
-            <h2 className="font-display text-lg font-semibold text-[#1B382B] mb-2">
+            <h2 className="text-lg font-semibold text-[#1B382B] mb-2">
               No active listings yet
             </h2>
             <p className="text-sm text-[#5C645E] mb-6 leading-relaxed">
@@ -959,7 +884,6 @@ function Items() {
           </div>
         )}
 
-        {/* Empty state — current filters produced no matches */}
         {!loading && !error && items.length === 0 && (hasActiveFilters || totalCount > 0) && (
           <div className="max-w-md mx-auto mt-16 text-center">
             <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-[#F4F1EA] border border-[#E7E3DA] flex items-center justify-center">
@@ -977,7 +901,7 @@ function Items() {
                 <path d="M21 21l-4.35-4.35" />
               </svg>
             </div>
-            <h2 className="font-display text-lg font-semibold text-[#1B382B] mb-2">
+            <h2 className="text-lg font-semibold text-[#1B382B] mb-2">
               No matching items found
             </h2>
             <p className="text-sm text-[#5C645E] mb-6 leading-relaxed">
@@ -993,7 +917,6 @@ function Items() {
           </div>
         )}
 
-        {/* Item grid */}
         {!loading && !error && items.length > 0 && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -74,12 +74,10 @@ const TIER_CONFIG = {
 function Profile() {
   const { user: authUser, updateUser } = useAuth();
 
-  // State Management
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Edit Profile Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     name: '',
@@ -91,7 +89,6 @@ function Profile() {
   const [editError, setEditError] = useState(null);
   const [editSuccess, setEditSuccess] = useState(false);
 
-  // Rate Counterparty Modal State
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [activeReturnForRating, setActiveReturnForRating] = useState(null);
   const [selectedScore, setSelectedScore] = useState(5);
@@ -100,7 +97,6 @@ function Profile() {
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [ratingError, setRatingError] = useState(null);
 
-  // Change Password Section State
   const [passwordFormData, setPasswordFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -186,7 +182,6 @@ function Profile() {
     fetchProfile();
   }, [fetchProfile]);
 
-  // Open Edit Modal
   const handleOpenEdit = () => {
     if (profileData?.user) {
       setEditFormData({
@@ -201,7 +196,6 @@ function Profile() {
     setEditModalOpen(true);
   };
 
-  // Submit Edit Form
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!editFormData.name.trim()) {
@@ -222,7 +216,6 @@ function Profile() {
         phoneNumber: updated.phoneNumber,
       });
 
-      // Update local profile state
       setProfileData((prev) => ({
         ...prev,
         user: {
@@ -246,7 +239,6 @@ function Profile() {
     }
   };
 
-  // Open Rating Modal
   const handleOpenRating = (ret) => {
     setActiveReturnForRating(ret);
     setSelectedScore(5);
@@ -256,7 +248,6 @@ function Profile() {
     setRatingModalOpen(true);
   };
 
-  // Submit Rating
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     if (!activeReturnForRating) return;
@@ -273,7 +264,6 @@ function Profile() {
 
       setRatingModalOpen(false);
       setActiveReturnForRating(null);
-      // Reload profile to refresh ratings and metrics
       await fetchProfile();
     } catch (err) {
       setRatingError(err.response?.data?.message || err.message || 'Failed to submit rating');
@@ -282,7 +272,6 @@ function Profile() {
     }
   };
 
-  // Helper for star visualization
   const renderStars = (ratingValue, max = 5, sizeClasses = 'w-4 h-4') => {
     const stars = [];
     const normalized = Math.max(0, Math.min(max, ratingValue));
@@ -316,10 +305,8 @@ function Profile() {
     return <div className="flex items-center space-x-0.5">{stars}</div>;
   };
 
-  // Helper for date formatting using shared utility
   const formatDate = (dateString) => formatShortDate(dateString, 'Recent');
 
-  // Status Chip helper
   const renderStatusBadge = (status) => {
     switch (status) {
       case 'CLAIMED':
@@ -413,14 +400,14 @@ function Profile() {
                 className="w-20 h-20 rounded-2xl object-cover border border-[#E7E3DA] shadow-xs"
               />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-[#1B382B] text-[#FAF8F5] flex items-center justify-center text-2xl font-serif font-bold shadow-xs">
+              <div className="w-20 h-20 rounded-2xl bg-[#1B382B] text-[#FAF8F5] flex items-center justify-center text-2xl font-bold shadow-xs">
                 {initials}
               </div>
             )}
 
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C201D] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#1C201D] tracking-tight">
                   {user.name}
                 </h1>
                 {/* Achievement Tier Badge in Header */}
@@ -490,7 +477,7 @@ function Profile() {
               Contribution Standing
             </span>
             <div className="flex items-baseline gap-3 mt-1.5">
-              <span className="text-3xl sm:text-4xl font-serif font-black text-[#1C201D]">
+              <span className="text-3xl sm:text-4xl font-bold text-[#1C201D]">
                 {reputation.points}
               </span>
               <span className="text-sm font-semibold text-[#5C645E]">
@@ -579,7 +566,7 @@ function Profile() {
             </svg>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-serif text-[#1C201D]">
+            <span className="text-2xl font-bold text-[#1C201D]">
               {reputation.totalRatings > 0 ? reputation.averageRating.toFixed(1) : '—'}
             </span>
             <span className="text-xs text-[#5C645E]">/ 5.0</span>
@@ -604,7 +591,7 @@ function Profile() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <div className="text-2xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl font-bold text-[#1C201D]">
             {reputation.itemsReturned}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -620,7 +607,7 @@ function Profile() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <div className="text-2xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl font-bold text-[#1C201D]">
             {reputation.lostReportsCount}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -636,7 +623,7 @@ function Profile() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <div className="text-2xl font-bold font-serif text-[#1C201D]">
+          <div className="text-2xl font-bold text-[#1C201D]">
             {reputation.foundReportsCount}
           </div>
           <p className="text-xs text-[#5C645E] mt-2">
@@ -693,7 +680,7 @@ function Profile() {
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-[#E7E3DA] mb-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#1C201D]">
+                <h2 className="text-lg font-bold text-[#1C201D]">
                   Community Trust Reviews
                 </h2>
                 <p className="text-xs text-[#5C645E]">
@@ -748,7 +735,6 @@ function Profile() {
                 ))}
               </div>
             ) : (
-              /* Clean Empty State for Ratings */
               <div className="py-12 px-4 text-center">
                 <div className="w-12 h-12 rounded-full bg-[#FAF8F5] border border-[#E7E3DA] text-[#8A928D] mx-auto flex items-center justify-center mb-3">
                   <svg className="w-6 h-6 text-[#8A928D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -778,7 +764,7 @@ function Profile() {
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-[#E7E3DA] mb-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#1C201D]">
+                <h2 className="text-lg font-bold text-[#1C201D]">
                   My Recent Reports
                 </h2>
                 <p className="text-xs text-[#5C645E]">
@@ -833,7 +819,6 @@ function Profile() {
                 ))}
               </div>
             ) : (
-              /* Clean Empty State for Reports */
               <div className="py-12 px-4 text-center">
                 <div className="w-12 h-12 rounded-full bg-[#FAF8F5] border border-[#E7E3DA] text-[#8A928D] mx-auto flex items-center justify-center mb-3">
                   <svg className="w-6 h-6 text-[#8A928D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -874,7 +859,7 @@ function Profile() {
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-serif font-bold text-[#1C201D]">
+            <h2 className="text-lg font-bold text-[#1C201D]">
               Change Password
             </h2>
             <p className="text-xs text-[#5C645E]">
@@ -1080,7 +1065,7 @@ function Profile() {
           >
             <div className="flex items-center justify-between pb-4 border-b border-[#E7E3DA] mb-5">
               <div>
-                <h2 id="edit-profile-title" className="text-lg font-serif font-bold text-[#1C201D]">
+                <h2 id="edit-profile-title" className="text-lg font-bold text-[#1C201D]">
                   Edit Profile Information
                 </h2>
                 <p className="text-xs text-[#5C645E]">
@@ -1241,7 +1226,7 @@ function Profile() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-[#E7E3DA] mb-4">
               <div>
-                <h2 id="rating-dialog-title" className="text-base font-serif font-bold text-[#1C201D]">
+                <h2 id="rating-dialog-title" className="text-base font-bold text-[#1C201D]">
                   Rate Return Experience
                 </h2>
                 <p className="text-xs text-[#5C645E]">

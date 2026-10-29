@@ -22,10 +22,8 @@ function Register() {
   const [searchParams] = useSearchParams();
   const redirectParam = searchParams.get('redirect');
 
-  // Consume register function and loading state from AuthContext
   const { register, loading } = useAuth();
 
-  // Handle input field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -34,13 +32,11 @@ function Register() {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
-    // Basic frontend validation
     if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
       setErrorMessage('Please fill in all fields.');
       return;
@@ -64,7 +60,6 @@ function Register() {
       });
 
       setSuccessMessage('Registration successful! You can now log in to your account.');
-      // Reset form fields upon successful registration
       setFormData({
         name: '',
         email: '',
@@ -83,9 +78,8 @@ function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] p-4 sm:p-6">
       <div className="w-full max-w-md bg-white rounded-xl shadow-xs border border-[#E7E3DA] p-6 sm:p-8">
-        {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#1B382B]">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1B382B]">
             Create an Account
           </h1>
           <p className="text-xs sm:text-sm text-[#5C645E] mt-1.5 leading-relaxed">
@@ -93,7 +87,6 @@ function Register() {
           </p>
         </div>
 
-        {/* Success Alert */}
         {successMessage && (
           <div className="mb-5 p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm">
             <p className="font-semibold flex items-center gap-1.5">
@@ -120,7 +113,6 @@ function Register() {
           </div>
         )}
 
-        {/* Error Alert */}
         {errorMessage && (
           <div className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-2">
             <svg
@@ -141,9 +133,7 @@ function Register() {
           </div>
         )}
 
-        {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
           <div>
             <label
               htmlFor="name"
@@ -164,7 +154,6 @@ function Register() {
             />
           </div>
 
-          {/* Email Address */}
           <div>
             <label
               htmlFor="email"
@@ -185,7 +174,6 @@ function Register() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label
               htmlFor="password"
@@ -225,7 +213,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Confirm Password */}
           <div>
             <label
               htmlFor="confirmPassword"
@@ -265,7 +252,6 @@ function Register() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -301,7 +287,6 @@ function Register() {
           </button>
         </form>
 
-        {/* Footer Navigation */}
         <div className="text-center mt-6 text-xs text-[#5C645E]">
           Already have an account?{' '}
           <Link

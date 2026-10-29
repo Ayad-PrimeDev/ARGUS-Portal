@@ -53,7 +53,6 @@ const calculateTierProgress = (points) => {
  * @param {string|ObjectId} userId
  */
 const calculateUserReputation = async (userId) => {
-    // 1. Fetch all items submitted by user (excluding secret verification answers)
     const userItems = await Item.find({ submitterId: userId })
         .select('-secretAnswer')
         .sort({ createdAt: -1 });
@@ -61,7 +60,6 @@ const calculateUserReputation = async (userId) => {
     const lostReports = userItems.filter((i) => i.type === 'LOST');
     const foundReports = userItems.filter((i) => i.type === 'FOUND');
 
-    // 2. Identify successfully completed returns
     // A found item that has been claimed represents a completed return
     const returnedItems = foundReports.filter((i) => i.status === 'CLAIMED');
 
@@ -69,17 +67,15 @@ const calculateUserReputation = async (userId) => {
     const foundCount = foundReports.length;
     const returnedCount = returnedItems.length;
 
-    // 3. Contribution Scoring:
+    // Contribution Scoring:
     // - Submitting a valid lost-item report: +10 pts
     // - Found-item report resulting in successful return: +50 pts
     // - Successfully returning found item to rightful owner: +100 pts
     // (Total 150 pts per completed found item return)
     const points = (lostCount * 10) + (returnedCount * 150);
 
-    // 4. Achievement Tier
     const tierData = calculateTierProgress(points);
 
-    // 5. Calculate Average Trust Rating from verified reviews
     const ratings = await Rating.find({ recipientId: userId })
         .populate('raterId', 'name profileImage')
         .populate('itemId', 'title type')
@@ -157,6 +153,9 @@ const getUserProfile = async (req, res, next) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                role: user.role || 'USER',
+                isSuspended: !!user.isSuspended,
+                suspensionReason: user.suspensionReason || '',
                 profileImage: user.profileImage || '',
                 bio: user.bio || '',
                 phoneNumber: user.phoneNumber || '',
@@ -195,7 +194,6 @@ const updateUserProfile = async (req, res, next) => {
             throw new Error('User not found');
         }
 
-        // Only allow permitted fields to be edited
         const { name, bio, profileImage, phoneNumber } = req.body;
 
         if (name !== undefined) {
@@ -292,7 +290,6 @@ const submitRating = async (req, res, next) => {
             throw new Error('Rating must be a valid number between 1 and 5');
         }
 
-        // Verify the item exists and is CLAIMED
         const item = await Item.findById(itemId);
         if (!item) {
             res.status(404);
@@ -329,13 +326,11 @@ const submitRating = async (req, res, next) => {
             recipientId = item.submitterId;
         }
 
-        // Prevent self rating
         if (recipientId.toString() === req.user._id.toString()) {
             res.status(400);
             throw new Error('Users cannot rate themselves');
         }
 
-        // Prevent duplicate rating
         const existingRating = await Rating.findOne({
             itemId: item._id,
             raterId: req.user._id
@@ -346,7 +341,6 @@ const submitRating = async (req, res, next) => {
             throw new Error('You have already submitted a rating for this completed return');
         }
 
-        // Create the rating record
         const newRating = await Rating.create({
             itemId: item._id,
             raterId: req.user._id,

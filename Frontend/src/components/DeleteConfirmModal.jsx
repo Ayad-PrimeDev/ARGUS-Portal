@@ -1,18 +1,5 @@
 import React from 'react';
 
-/**
- * DeleteConfirmModal Component
- * Reusable modal dialog prompting user confirmation before permanently deleting a report.
- * Used by both ItemDetails and Dashboard pages.
- *
- * @param {Object} props
- * @param {boolean} props.isOpen - Whether the confirmation dialog is visible
- * @param {string} props.itemName - Title or name of the item to be deleted
- * @param {Function} props.onClose - Callback triggered when user cancels or dismisses
- * @param {Function} props.onConfirm - Callback triggered when user confirms permanent deletion
- * @param {boolean} [props.deleting=false] - Loading indicator during deletion API call
- * @param {string} [props.error=''] - Error message to display if deletion fails
- */
 function DeleteConfirmModal({
   isOpen,
   itemName = 'this item',
@@ -37,7 +24,6 @@ function DeleteConfirmModal({
       }}
     >
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#E7E3DA] p-6 sm:p-7">
-        {/* Trash Icon */}
         <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +43,7 @@ function DeleteConfirmModal({
           </svg>
         </div>
 
-        <h2 id="delete-modal-title" className="font-display text-lg font-bold text-[#1B382B] text-center mb-2">
+        <h2 id="delete-modal-title" className="text-lg font-bold text-[#1B382B] text-center mb-2">
           Delete This Report?
         </h2>
         <p className="text-sm text-[#5C645E] text-center leading-relaxed mb-1">
@@ -67,7 +53,6 @@ function DeleteConfirmModal({
           This action cannot be undone. All related claims will also be removed.
         </p>
 
-        {/* Error message */}
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
             <svg

@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Create a configured instance of Axios
 const api = axios.create({
   // Point to our Express backend API (configurable via VITE_API_URL with local fallback)
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',

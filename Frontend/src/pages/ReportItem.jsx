@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { ITEM_CATEGORIES } from '../constants/categories';
 import { getTodayDateString } from '../utils/dateUtils';
 
-// Reference shared categories and today's date helper
 const CATEGORIES = ITEM_CATEGORIES;
 const getTodayString = getTodayDateString;
 
@@ -21,7 +20,6 @@ function ReportItem() {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Resolve item type from route parameter or query string
   const resolveType = () => {
     if (pathType?.toUpperCase() === 'FOUND' || location.pathname.endsWith('/found')) return 'FOUND';
     if (pathType?.toUpperCase() === 'LOST' || location.pathname.endsWith('/lost')) return 'LOST';
@@ -39,7 +37,6 @@ function ReportItem() {
     }
   }, [searchParams, pathType, location.pathname]);
 
-  // Form input fields matching Item model
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -52,20 +49,17 @@ function ReportItem() {
     secretAnswer: '',
   });
 
-  // Prepopulate contact information if user profile is available
   useEffect(() => {
     if (user?.email && !formData.contactInformation) {
       setFormData((prev) => ({ ...prev, contactInformation: user.email }));
     }
   }, [user]);
 
-  // Form submission and validation states
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Switch between Lost and Found mode
   const handleTypeSwitch = (type) => {
     setItemType(type);
     if (location.pathname.startsWith('/report/')) {
@@ -86,7 +80,6 @@ function ReportItem() {
     setServerError('');
   };
 
-  // Handle generic input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -94,7 +87,6 @@ function ReportItem() {
       [name]: value,
     }));
 
-    // Clear field-specific validation error on input
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -103,7 +95,6 @@ function ReportItem() {
     }
   };
 
-  // Validate form fields prior to sending request
   const validateForm = () => {
     const newErrors = {};
 
@@ -147,7 +138,6 @@ function ReportItem() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit form to backend API
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError('');
@@ -183,7 +173,6 @@ function ReportItem() {
           : 'Found item report submitted successfully.'
       );
 
-      // Redirect to the created item details page after brief confirmation
       setTimeout(() => {
         if (newItem && newItem._id) {
           navigate(`/items/${newItem._id}`);
@@ -219,7 +208,6 @@ function ReportItem() {
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-[#1C201D] py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="mb-4 text-xs text-[#5C645E] flex items-center gap-1.5">
           <Link to="/" className="hover:text-[#1B382B] transition-colors">
             Home
@@ -232,9 +220,8 @@ function ReportItem() {
           <span className="text-[#1B382B] font-medium">Report</span>
         </nav>
 
-        {/* Page Header */}
         <div className="mb-6">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#1B382B] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1B382B] tracking-tight">
             {isLost ? 'Report a Lost Item' : 'Report a Found Item'}
           </h1>
           <p className="text-xs sm:text-sm text-[#5C645E] mt-1.5 leading-relaxed">
@@ -244,7 +231,6 @@ function ReportItem() {
           </p>
         </div>
 
-        {/* Mode Switcher Tabs */}
         <div className="flex items-center p-1 bg-white border border-[#E7E3DA] rounded-lg mb-6 shadow-2xs">
           <button
             type="button"
@@ -274,7 +260,6 @@ function ReportItem() {
           </button>
         </div>
 
-        {/* Success Alert */}
         {successMessage && (
           <div className="mb-5 p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center gap-2.5">
             <svg
@@ -293,7 +278,6 @@ function ReportItem() {
           </div>
         )}
 
-        {/* Server Error Alert */}
         {serverError && (
           <div className="mb-5 p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-center gap-2.5">
             <svg
@@ -314,13 +298,11 @@ function ReportItem() {
           </div>
         )}
 
-        {/* Form Container */}
         <form
           onSubmit={handleSubmit}
           noValidate
           className="bg-white border border-[#E7E3DA] rounded-xl p-6 sm:p-8 shadow-xs space-y-5"
         >
-          {/* Title */}
           <div>
             <label htmlFor="title" className="block text-xs font-semibold text-[#1C201D] mb-1">
               Item Title <span className="text-[#C05634]">*</span>
@@ -344,7 +326,6 @@ function ReportItem() {
             )}
           </div>
 
-          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-xs font-semibold text-[#1C201D] mb-1">
               Category <span className="text-[#C05634]">*</span>
@@ -373,7 +354,6 @@ function ReportItem() {
             )}
           </div>
 
-          {/* Location & Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="location" className="block text-xs font-semibold text-[#1C201D] mb-1">
@@ -422,7 +402,6 @@ function ReportItem() {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label htmlFor="description" className="block text-xs font-semibold text-[#1C201D] mb-1">
               Description <span className="text-[#C05634]">*</span>
@@ -450,7 +429,6 @@ function ReportItem() {
             )}
           </div>
 
-          {/* Contact Information */}
           <div>
             <label htmlFor="contactInformation" className="block text-xs font-semibold text-[#1C201D] mb-1">
               Contact Information <span className="text-[#C05634]">*</span>
@@ -478,7 +456,6 @@ function ReportItem() {
             )}
           </div>
 
-          {/* Image URL (Optional) */}
           <div>
             <label htmlFor="imageUrl" className="block text-xs font-semibold text-[#1C201D] mb-1">
               Image URL <span className="text-[#5C645E] font-normal text-[11px]">(Optional)</span>
@@ -495,7 +472,6 @@ function ReportItem() {
             />
           </div>
 
-          {/* Verification Challenge for Found Items */}
           {!isLost && (
             <div className="pt-2 border-t border-[#E7E3DA] space-y-4">
               <div>
@@ -559,7 +535,6 @@ function ReportItem() {
             </div>
           )}
 
-          {/* Form Actions */}
           <div className="pt-3 border-t border-[#E7E3DA] flex items-center justify-end gap-3">
             <button
               type="button"

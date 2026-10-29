@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the User Schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -9,7 +8,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, 'Please add an email'],
-        unique: true // Ensures no duplicate emails in the database
+        unique: true
     },
     password: {
         type: String,
@@ -17,15 +16,15 @@ const userSchema = new mongoose.Schema({
     },
     profileImage: {
         type: String,
-        required: false // Optional field for the user's avatar/profile picture
+        required: false
     },
     bio: {
         type: String,
-        default: '' // Optional short user bio
+        default: ''
     },
     phoneNumber: {
         type: String,
-        default: '' // Optional contact phone number
+        default: ''
     },
     resetPasswordToken: {
         type: String,
@@ -39,11 +38,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['USER', 'ADMIN'],
         default: 'USER'
+    },
+    isSuspended: {
+        type: Boolean,
+        default: false
+    },
+    suspensionReason: {
+        type: String,
+        default: ''
     }
 }, {
-    // Automatically manages 'createdAt' and 'updatedAt' fields
     timestamps: true 
 });
 
-// Export the User model based on the schema
 module.exports = mongoose.model('User', userSchema);

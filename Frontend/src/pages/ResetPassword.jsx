@@ -78,7 +78,6 @@ function ResetPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] p-4 sm:p-6">
       <div className="w-full max-w-md bg-white rounded-xl shadow-xs border border-[#E7E3DA] p-6 sm:p-8">
-        {/* Header */}
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-[#1B382B]/10 text-[#1B382B] rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
@@ -95,7 +94,7 @@ function ResetPassword() {
               />
             </svg>
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#1B382B]">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1B382B]">
             Set New Password
           </h1>
           <p className="text-xs sm:text-sm text-[#5C645E] mt-1.5 leading-relaxed">
@@ -103,7 +102,6 @@ function ResetPassword() {
           </p>
         </div>
 
-        {/* Missing Token Warning */}
         {!token && (
           <div className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm">
             No reset token found in this link. Please check your email or request a new reset link.
@@ -115,7 +113,6 @@ function ResetPassword() {
           </div>
         )}
 
-        {/* Success Alert */}
         {successMessage && (
           <div className="mb-5 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm space-y-3">
             <div className="flex items-start gap-2">
@@ -148,7 +145,6 @@ function ResetPassword() {
           </div>
         )}
 
-        {/* Error Alert */}
         {errorMessage && (
           <div className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-2">
             <svg
@@ -169,10 +165,8 @@ function ResetPassword() {
           </div>
         )}
 
-        {/* Reset Form */}
         {!successMessage && (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* New Password */}
             <div>
               <label
                 htmlFor="new-password"
@@ -212,7 +206,6 @@ function ResetPassword() {
               </div>
             </div>
 
-            {/* Confirm New Password */}
             <div>
               <label
                 htmlFor="confirm-password"
@@ -252,7 +245,6 @@ function ResetPassword() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || !token}

@@ -3,18 +3,6 @@ import { Link } from 'react-router-dom';
 import { formatDateTime } from '../utils/dateUtils';
 import { updateClaimStatus } from '../services/claimService';
 
-/**
- * ClaimTimelineModal Component
- *
- * Displays a comprehensive, accessible vertical tracking timeline for an ownership claim.
- * Progression: Submitted → Under Review → Approved or Rejected → Returned.
- * Features:
- * - Unique claim reference ID
- * - Associated item thumbnail, title, category, and location
- * - Step-by-step visual timeline with timestamps, descriptions, actors, and notes
- * - Detailed status badge and explanation
- * - Reviewer action controls (when authorized)
- */
 function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
   const [loadingAction, setLoadingAction] = useState(false);
   const [actionError, setActionError] = useState(null);
@@ -27,11 +15,7 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
 
   // Normalized current status (treating legacy PENDING as SUBMITTED)
   const currentStatus = claim.status === 'PENDING' ? 'SUBMITTED' : (claim.status || 'SUBMITTED');
-
-  // Short Reference Code e.g. #CLM-8F3A21
   const claimRef = `#CLM-${claim._id.slice(-6).toUpperCase()}`;
-
-  // Find timeline events
   const timelineEvents = Array.isArray(claim.timeline) ? claim.timeline : [];
 
   const getEventForStatus = (statusName) => {
@@ -46,7 +30,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
   const rejectedEvent = getEventForStatus('REJECTED');
   const returnedEvent = getEventForStatus('RETURNED');
 
-  // Workflow Stage Computations
   const isUnderReviewDone = Boolean(underReviewEvent || approvedEvent || rejectedEvent || returnedEvent);
   const isUnderReviewCurrent = currentStatus === 'UNDER_REVIEW';
 
@@ -57,7 +40,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
   const isReturnedDone = currentStatus === 'RETURNED';
   const isAwaitingHandover = currentStatus === 'APPROVED';
 
-  // Handle Reviewer Transitions
   const handlePerformTransition = async (newStatus, noteText = '') => {
     setLoadingAction(true);
     setActionError(null);
@@ -88,7 +70,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
         aria-modal="true"
         aria-labelledby="timeline-modal-title"
       >
-        {/* ── Dialog Header ── */}
         <div className="p-5 sm:p-6 bg-[#FAF8F5] border-b border-[#E7E3DA] flex items-start justify-between gap-4 shrink-0">
           <div>
             <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -115,7 +96,7 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
                   : currentStatus.charAt(0) + currentStatus.slice(1).toLowerCase()}
               </span>
             </div>
-            <h2 id="timeline-modal-title" className="text-xl font-serif font-bold text-[#1C201D]">
+            <h2 id="timeline-modal-title" className="text-xl font-bold text-[#1C201D]">
               Claim Tracking Timeline
             </h2>
             <p className="text-xs text-[#5C645E] mt-0.5">
@@ -133,9 +114,7 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
           </button>
         </div>
 
-        {/* ── Scrollable Body ── */}
         <div className="p-5 sm:p-6 space-y-6 overflow-y-auto flex-1">
-          {/* Target Item Card */}
           {claim.itemId ? (
             <div className="flex items-center gap-4 p-3.5 bg-[#FAF8F5] border border-[#E7E3DA] rounded-xl">
               {claim.itemId.imageUrl ? (
@@ -174,7 +153,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
             </div>
           )}
 
-          {/* Action Error Alert */}
           {actionError && (
             <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs flex items-start gap-2">
               <svg className="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -186,7 +164,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
             </div>
           )}
 
-          {/* Current Status Overview Banner */}
           <div
             className={`p-4 rounded-xl border flex items-start gap-3 ${
               currentStatus === 'RETURNED'
@@ -239,12 +216,9 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
             </div>
           </div>
 
-          {/* ── Vertical Timeline ── */}
           <div className="space-y-0 relative pl-2 pt-2">
-            {/* Timeline Vertical Track line */}
             <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-[#E7E3DA]" />
 
-            {/* STAGE 1: SUBMITTED */}
             <div className="relative flex items-start gap-4 pb-8 group">
               <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 z-10 shadow-xs ring-4 ring-white">
                 ✓
@@ -270,7 +244,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
               </div>
             </div>
 
-            {/* STAGE 2: UNDER REVIEW */}
             <div className="relative flex items-start gap-4 pb-8 group">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 z-10 shadow-xs ring-4 ring-white ${
@@ -315,7 +288,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
               </div>
             </div>
 
-            {/* STAGE 3: DECISION (Approved or Rejected) */}
             <div className="relative flex items-start gap-4 pb-8 group">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 z-10 shadow-xs ring-4 ring-white ${
@@ -377,7 +349,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
               </div>
             </div>
 
-            {/* STAGE 4: RETURNED / HANDOVER */}
             <div className="relative flex items-start gap-4 group">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 z-10 shadow-xs ring-4 ring-white ${
@@ -437,7 +408,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
             </div>
           </div>
 
-          {/* ── Reviewer Action Controls ── */}
           {canReview && (
             <div className="p-4 bg-[#FAF8F5] border border-[#E7E3DA] rounded-xl space-y-3 pt-3">
               <div className="flex items-center justify-between">
@@ -448,7 +418,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
                 <span className="text-[11px] text-[#5C645E]">Authorized Reporter</span>
               </div>
 
-              {/* Action buttons depending on state */}
               {currentStatus === 'SUBMITTED' && !rejectingOpen && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
@@ -514,7 +483,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
                 </div>
               )}
 
-              {/* Handover confirmation prompt */}
               {handoverConfirmOpen && (
                 <div className="p-3 bg-white border border-[#E7E3DA] rounded-lg space-y-2">
                   <p className="text-xs font-bold text-[#1C201D]">
@@ -547,7 +515,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
                 </div>
               )}
 
-              {/* Rejection reason prompt */}
               {rejectingOpen && (
                 <div className="p-3 bg-white border border-red-200 rounded-lg space-y-2">
                   <p className="text-xs font-bold text-red-950">
@@ -598,7 +565,6 @@ function ClaimTimelineModal({ claim, onClose, onStatusUpdated, canReview }) {
           )}
         </div>
 
-        {/* ── Dialog Footer ── */}
         <div className="p-4 bg-[#FAF8F5] border-t border-[#E7E3DA] flex items-center justify-end gap-3 shrink-0">
           <button
             type="button"

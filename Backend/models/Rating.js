@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the Rating Schema for completed item returns
 const ratingSchema = new mongoose.Schema(
     {
         itemId: {
